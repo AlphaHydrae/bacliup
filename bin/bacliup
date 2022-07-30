@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+local_cleanup() {
+  local tmp_dir="$1"
+  test -d "$tmp_dir" && rm -fr "$tmp_dir"
+}
+
+tmp_dir=`mktemp -d -t bacliup`
+trap "local_cleanup $tmp_dir" EXIT
+
+echo bacliup
