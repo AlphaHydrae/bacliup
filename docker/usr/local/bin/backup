@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+echo "No backup configured. Edit '/usr/local/bin/backup' and store data in \$BACKUP_DIR."

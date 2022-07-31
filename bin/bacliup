@@ -1,12 +1,79 @@
 #!/usr/bin/env bash
 set -e
 
+fail() {
+  >&2 echo "$@"
+  exit 1
+}
+
 local_cleanup() {
   local tmp_dir="$1"
   test -d "$tmp_dir" && rm -fr "$tmp_dir"
 }
 
-tmp_dir=`mktemp -d -t bacliup`
+
+
+# Parse options
+# =============
+
+backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
+backup_to="${BACLIUP_BACKUP_TO:-dest:}"
+rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE:-~/.config/rclone/rclone.conf}"
+slack_webhook="$BACLIUP_SLACK_WEBHOOK"
+positional_args=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--script)
+      backup_script="$2"
+      shift
+      shift
+      ;;
+    -t|--to)
+      backup_to="$2"
+      shift
+      shift
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      positional_args+=("$1")
+      shift
+      ;;
+  esac
+done
+
+set -- "${positional_args[@]}" # restore positional parameters
+
+test "$#" -gt 0 && fail "Positional arguments not supported"
+
+
+
+# Backup
+# ======
+
+tmp_dir=`mktemp -d bacliup.XXXXXX`
 trap "local_cleanup $tmp_dir" EXIT
 
-echo bacliup
+backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
+backup_name="backup.${backup_timestamp}"
+current_backup_dir="${tmp_dir}/${backup_name}"
+current_backup_archive="${tmp_dir}/${backup_name}.tar.gpg"
+
+mkdir "$current_backup_dir"
+
+BACKUP_DIR="$current_backup_dir" "$backup_script"
+
+tar -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")" | \
+  gpg --batch -aer "$BACLIUP_GPG_RECIPIENT" > "$current_backup_archive"
+
+rclone copy --config "$rclone_config_file" "$current_backup_archive" "$backup_to"
+
+if test -n "$slack_webhook"; then
+  curl \
+    -d '{"text":"Backup successful"}' \
+    -v \
+    "$slack_webhook"
+fi
