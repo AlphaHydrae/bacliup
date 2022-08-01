@@ -18,6 +18,8 @@ local_cleanup() {
 
 backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-dest:}"
+gpg_bin="${BACLIUP_GPG_BIN:-gpg}"
+rclone_bin="${BACLIUP_RCLONE_BIN:-rclone}"
 rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE:-~/.config/rclone/rclone.conf}"
 slack_webhook="$BACLIUP_SLACK_WEBHOOK"
 positional_args=()
@@ -67,9 +69,9 @@ mkdir "$current_backup_dir"
 BACKUP_DIR="$current_backup_dir" "$backup_script"
 
 tar -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")" | \
-  gpg --batch -aer "$BACLIUP_GPG_RECIPIENT" > "$current_backup_archive"
+  "$gpg_bin" --batch -aer "$BACLIUP_GPG_RECIPIENT" > "$current_backup_archive"
 
-rclone copy --config "$rclone_config_file" "$current_backup_archive" "$backup_to"
+"$rclone_bin" copy --config "$rclone_config_file" "$current_backup_archive" "$backup_to"
 
 if test -n "$slack_webhook"; then
   curl \
