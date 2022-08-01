@@ -7,7 +7,7 @@ RUN chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
 
 FROM alpine:3.16.1
 
-RUN apk add --no-cache bash curl gnupg && \
+RUN apk add --no-cache bash curl gnupg jq && \
     apk add --no-cache --virtual .build-deps \
       ca-certificates \
       sudo \
