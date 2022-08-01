@@ -1,6 +1,48 @@
 #!/usr/bin/env bash
 set -e
 
+function create_temporary_directory() {
+  if is_macos; then
+    mktemp -d -t bacliup
+  else
+    mktemp -d -t bacliup.XXXXXX
+  fi
+}
+
+function element_in_array() {
+  local element="$1"
+  shift
+
+  for current_value in "$@"; do
+    if [[ "$current_value" == "$element" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+function check_gpg_recipient_available() {
+  local recipient="$1"
+  test -n "$("$gpg_bin" --armor --batch --export "$1" 2>/dev/null)"
+}
+
+function check_rclone_remote_available() {
+  local remote="$1"
+  local available_remotes=("$(rclone --config "$rclone_config_file" listremotes)")
+  element_in_array "${remote}:" "${available_remotes[@]}"
+}
+
+function get_rclone_remote_from_path() {
+  local path="$1"
+  echo "$path" | sed 's/:.*//'
+}
+
+function is_macos() {
+  local operating_system_name="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  [[ "$operating_system_name" == "darwin" ]]
+}
+
 fail() {
   >&2 echo "$@"
   exit 1
@@ -16,66 +58,139 @@ local_cleanup() {
 # Parse options
 # =============
 
-backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
-backup_to="${BACLIUP_BACKUP_TO:-dest:}"
+# Environment
+script_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1; pwd -P )"
+
+# Binaries
+curl_bin="${BACLIUP_CURL_BIN:-curl}"
 gpg_bin="${BACLIUP_GPG_BIN:-gpg}"
 rclone_bin="${BACLIUP_RCLONE_BIN:-rclone}"
+tar_bin="${BACLIUP_TAR_BIN:-tar}"
+
+# Backup options
+backup_name="${BACLIUP_BACKUP_NAME:-default}"
+backup_interval="$BACLIUP_BACKUP_INTERVAL"
+backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
+backup_to="${BACLIUP_BACKUP_TO:-dest:}"
+IFS=',' read -r -a gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
+gpg_cli_recipients=()
+templates_dir="${BACLIUP_TEMPLATES_DIR:-"${script_path}/../templates"}"
+
+# Storage options
 rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE:-~/.config/rclone/rclone.conf}"
+
+# Notification options
 slack_webhook="$BACLIUP_SLACK_WEBHOOK"
+
 positional_args=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -r|--gpg-recipient)
+      gpg_cli_recipients+=("$2")
+      shift
+      shift
+    ;;
     -s|--script)
       backup_script="$2"
       shift
       shift
-      ;;
+    ;;
     -t|--to)
       backup_to="$2"
       shift
       shift
-      ;;
+    ;;
+    --)
+      shift
+      remaining_args=($@)
+      positional_args+=("${remaining_args[@]}")
+      break
+    ;;
     -*|--*)
       echo "Unknown option $1"
       exit 1
-      ;;
+    ;;
     *)
       positional_args+=("$1")
       shift
-      ;;
+    ;;
   esac
 done
 
-set -- "${positional_args[@]}" # restore positional parameters
+# Restore positional parameters.
+set -- "${positional_args[@]}"
 
-test "$#" -gt 0 && fail "Positional arguments not supported"
+# Override environment variables with command-line arguments.
+test "${#gpg_cli_recipients[@]}" -ge 1 && gpg_recipients=("${gpg_cli_recipients[@]}")
+
+test "$#" -gt 0 && fail "Positional arguments not supported: ${positional_args[@]}"
 
 
 
 # Backup
 # ======
 
-tmp_dir=`mktemp -d bacliup.XXXXXX`
+tmp_dir=`create_temporary_directory`
 trap "local_cleanup $tmp_dir" EXIT
 
-backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
-backup_name="backup.${backup_timestamp}"
-current_backup_dir="${tmp_dir}/${backup_name}"
-current_backup_archive="${tmp_dir}/${backup_name}.tar.gpg"
+log_file="${tmp_dir}/bacliup.log"
+exec &> >(tee -a "$log_file")
 
-mkdir "$current_backup_dir"
+function back_up() {
+  local backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
+  local backup_directory_name="backup.${backup_timestamp}"
+  local current_backup_dir="${tmp_dir}/${backup_directory_name}"
+  local current_backup_basename="${backup_directory_name}.tar.gpg"
 
-BACKUP_DIR="$current_backup_dir" "$backup_script"
+  mkdir "$current_backup_dir"
 
-tar -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")" | \
-  "$gpg_bin" --batch -aer "$BACLIUP_GPG_RECIPIENT" > "$current_backup_archive"
+  BACKUP_DIR="$current_backup_dir" "$backup_script"
 
-"$rclone_bin" copy --config "$rclone_config_file" "$current_backup_archive" "$backup_to"
+  local tar_cmd=("$tar_bin" -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")")
 
-if test -n "$slack_webhook"; then
-  curl \
-    -d '{"text":"Backup successful"}' \
-    -v \
-    "$slack_webhook"
-fi
+  local gpg_cmd=("$gpg_bin" "--armor" "--batch" "--encrypt")
+  for recipient in "${gpg_recipients[@]}"; do
+    check_gpg_recipient_available "$recipient" || \
+      fail "GPG recipient '${recipient}' cannot be found. Is the GPG key in the keyring?"
+
+    gpg_cmd+=("--recipient" "$recipient")
+  done
+
+  local rclone_remote="$(get_rclone_remote_from_path "$backup_to")"
+  test -n "$rclone_remote" || fail "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
+  check_rclone_remote_available "$rclone_remote" || fail "Backup remote $rclone_remote cannot be found. Is it defined in the rclone configuration file?"
+  local rclone_dest="${backup_to%/}/${current_backup_basename}"
+  local rclone_cmd=("$rclone_bin" rcat --config "$rclone_config_file" "$rclone_dest")
+
+  local raw_size_file="${tmp_dir}/raw-size.pv"
+  local final_size_file="${tmp_dir}/final-size.pv"
+  local now="$(date "+%s")"
+
+  "${tar_cmd[@]}" | \
+    "${gpg_cmd[@]}" | \
+    pv -bf 2>"$final_size_file" | \
+    "${rclone_cmd[@]}"
+
+  local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
+  local now_after="$(date "+%s")"
+  local elapsed_seconds="$(($now_after-$now))"
+
+  if test -n "$slack_webhook"; then
+    local backup_message="Successful"
+    test -n "$backup_interval" && backup_message="$backup_message $backup_interval"
+    backup_message="$backup_message backup for $backup_name"
+
+    local backup_duration="${elapsed_seconds}s"
+    test "$elapsed_seconds" -eq 0 && backup_duration="< 1s"
+
+    cat "${templates_dir}/slack-success.json" | \
+      backup_message="$backup_message" backup_name="$backup_name" backup_interval="${backup_interval:-"_None_"}" backup_duration="$backup_duration" backup_size="\`${backup_size}\`" backup_destination="\`${rclone_dest}\`" envsubst | \
+      "$curl_bin" \
+        --data-binary @- \
+        -H "Content-Type: application/json" \
+        "$slack_webhook"
+  fi
+}
+
+back_up

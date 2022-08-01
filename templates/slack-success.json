@@ -1,0 +1,27 @@
+{
+  "attachments": [
+    {
+      "color": "good",
+      "title": ":white_check_mark: ${backup_message}",
+      "text": "‎",
+      "fields": [
+        { "title": "Backup", "value": "${backup_name}", "short": true },
+        { "title": "Interval", "value": "${backup_interval}", "short": true },
+        {
+          "title": "Duration",
+          "value": "${backup_duration}",
+          "short": true
+        },
+        {
+          "title": "Size",
+          "value": "${backup_size}",
+          "short": true
+        },
+        {
+          "title": "Destination",
+          "value": "${backup_destination}"
+        }
+      ]
+    }
+  ]
+}
