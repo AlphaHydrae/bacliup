@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
+function build_rclone_command() {
+  local subcommand="$1"
+  shift
+
+  local rclone_cmd=("$rclone_bin")
+  test -n "$rclone_config_file" && rclone_cmd+=(--config "$rclone_config_file")
+  rclone_cmd+=("$subcommand" $@)
+
+  echo "${rclone_cmd[@]}"
+}
+
 function create_temporary_directory() {
   if is_macos; then
     mktemp -d -t bacliup
@@ -16,7 +27,8 @@ function check_gpg_recipient_available() {
 
 function check_rclone_remote_available() {
   local remote="$1"
-  local available_remotes=("$(rclone --config "$rclone_config_file" listremotes)")
+  local rclone_cmd=($(build_rclone_command listremotes))
+  local available_remotes=("$("${rclone_cmd[@]}")")
   element_in_array "${remote}:" "${available_remotes[@]}"
 }
 
@@ -78,6 +90,13 @@ function local_cleanup() {
 # ========
 
 function back_up() {
+  if test "$#" -ge 1; then
+    backup_type="$1"
+    shift
+  fi
+
+  test "$#" -eq 0 || fail "Extra positional argument(s) not supported by 'backup' subcommand: $@"
+
   local backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
   local backup_directory_name="${backup_name}.${backup_timestamp}"
   local current_backup_dir="${tmp_dir}/${backup_directory_name}"
@@ -101,7 +120,7 @@ function back_up() {
   test -n "$rclone_remote" || fail "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
   check_rclone_remote_available "$rclone_remote" || fail "Backup remote $rclone_remote cannot be found. Is it defined in the rclone configuration file?"
   local rclone_dest="${backup_to%/}/${current_backup_basename}"
-  local rclone_cmd=("$rclone_bin" rcat --config "$rclone_config_file" "$rclone_dest")
+  local rclone_cmd=($(build_rclone_command rcat "$rclone_dest"))
 
   local raw_size_file="${tmp_dir}/raw-size.pv"
   local final_size_file="${tmp_dir}/final-size.pv"
@@ -134,6 +153,8 @@ function back_up() {
 }
 
 function generate_backup_cron() {
+  test "$#" -gt 0 && fail "Extra positional argument(s) not supported by 'cron' subcommand: $@"
+
   local cron="$(cat <<EOF
 # ┌───────────── minute (0 - 59)
 # │ ┌───────────── hour (0 - 23)
@@ -177,13 +198,15 @@ backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-"dest:"}"
 IFS=',' read -r -a gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
 gpg_cli_recipients=()
-templates_dir="${BACLIUP_TEMPLATES_DIR:-"${script_path}/../templates"}"
 
 # Storage options
-rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE:-~/.config/rclone/rclone.conf}"
+rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE}"
 
 # Notification options
 slack_webhook="$BACLIUP_SLACK_WEBHOOK"
+
+# Other options
+templates_dir="${BACLIUP_TEMPLATES_DIR:-"${script_path}/../templates"}"
 
 positional_args=()
 
@@ -228,15 +251,12 @@ set -- "${positional_args[@]}"
 test "${#gpg_cli_recipients[@]}" -ge 1 && gpg_recipients=("${gpg_cli_recipients[@]}")
 
 action="backup"
-if [[ "$1" == "cron" ]]; then
+if [[ "$1" == "backup" ]]; then
+  shift
+elif [[ "$1" == "cron" ]]; then
   action="cron"
   shift
-elif test "$#" -gt 1; then
-  backup_type="$1"
-  shift
 fi
-
-test "$#" -gt 0 && fail "Only one position argument is supported. Extra arguments: $@"
 
 backup_to="$(get_config_value "to")"
 backup_to="${backup_to:-${BACLIUP_BACKUP_TO:-dest:}}"
@@ -245,10 +265,11 @@ tmp_dir=`create_temporary_directory`
 trap "local_cleanup $tmp_dir" EXIT
 
 log_file="${tmp_dir}/bacliup.log"
+touch "$log_file"
 exec &> >(tee -a "$log_file")
 
 if [[ "$action" == "backup" ]]; then
-  back_up
+  back_up "$@"
 elif [[ "$action" == "cron" ]]; then
-  generate_backup_cron
+  generate_backup_cron "$@"
 fi
