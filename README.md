@@ -1,14 +1,11 @@
 # Bacliup
 
-> **A command-line backup solution slapped together using a bunch of other
-> command-line tools. Also comes with a Docker image.**
+> **A command-line backup solution based on Bash, cron & rclone, _for when shell
+> scripting is good enough_. Also comes with a Docker image.**
 
-Bacliup supports:
-
-* Backing up anything you can back up from [Bash][bash] script, using
-  [tar][tar], [gzip][gzip] and [GnuPG][gnupg] to create, compress and encrypt
-  archives.
-* Periodic backups with [Cron][cron].
+* Back up anything you can access from a [Bash][bash] script, using [tar][tar],
+  [gzip][gzip] and [GnuPG][gnupg] to create, compress and encrypt archives.
+* Easy periodic backups with [Cron][cron].
 * Local/remote backup storage with [rclone][rclone] to [any supported
   provider][rclone-providers].
 * Success/failure notifications with [Slack][slack] (using [curl][curl] and

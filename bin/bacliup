@@ -84,6 +84,32 @@ function local_cleanup() {
   test -d "$tmp_dir" && rm -fr "$tmp_dir"
 }
 
+function slack_success() {
+  local backup_name="$1"
+  local backup_type="$2"
+  local backup_duration="$3"
+  local backup_size="$4"
+  local backup_destination="$5"
+
+  test -n "$slack_webhook" || return 0
+
+  local backup_message=":white_check_mark: Successful"
+  test -n "$backup_type" && backup_message="$backup_message $backup_type"
+  backup_message="$backup_message backup for $backup_name"
+
+  local backup_duration="${elapsed_seconds}s"
+  test "$elapsed_seconds" -eq 0 && backup_duration="< 1s"
+
+  cat "${templates_dir}/slack-success.json" | \
+    jq --arg backup_message "$backup_message" '(.attachments[0].title) |= $backup_message' | \
+    jq --arg backup_name "$backup_name" '(.attachments[0].fields[] | select(.title == "Backup") | .value) |= $backup_name' | \
+    jq --arg backup_type "$backup_type" '(.attachments[0].fields[] | select(.title == "Type") | .value) |= $backup_type' | \
+    jq --arg backup_duration "$backup_duration" '(.attachments[0].fields[] | select(.title == "Duration") | .value) |= $backup_duration' | \
+    jq --arg backup_size "\`$backup_size\`" '(.attachments[0].fields[] | select(.title == "Size") | .value) |= $backup_size' | \
+    jq --arg backup_destination "\`$backup_destination\`" '(.attachments[0].fields[] | select(.title == "Destination") | .value) |= $backup_destination' | \
+    "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$slack_webhook"
+}
+
 
 
 # Features
@@ -97,6 +123,10 @@ function back_up() {
 
   test "$#" -eq 0 || fail "Extra positional argument(s) not supported by 'backup' subcommand: $@"
 
+  local backup_to="$(get_config_value "$backup_type" "to")"
+  backup_to="${backup_to:-${BACLIUP_BACKUP_TO:-dest:}}"
+  backup_to="$(printf "$backup_to" | backup_name="$backup_name" envsubst '$backup_name')"
+
   local backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
   local backup_directory_name="${backup_name}.${backup_timestamp}"
   local current_backup_dir="${tmp_dir}/${backup_directory_name}"
@@ -109,7 +139,7 @@ function back_up() {
   local tar_cmd=("$tar_bin" -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")")
 
   local gpg_cmd=("$gpg_bin" "--armor" "--batch" "--encrypt")
-  for recipient in "${gpg_recipients[@]}"; do
+  for recipient in "${backup_gpg_recipients[@]}"; do
     check_gpg_recipient_available "$recipient" || \
       fail "GPG recipient '${recipient}' cannot be found. Is the GPG key in the keyring?"
 
@@ -122,7 +152,6 @@ function back_up() {
   local rclone_dest="${backup_to%/}/${current_backup_basename}"
   local rclone_cmd=($(build_rclone_command rcat "$rclone_dest"))
 
-  local raw_size_file="${tmp_dir}/raw-size.pv"
   local final_size_file="${tmp_dir}/final-size.pv"
   local now="$(date "+%s")"
 
@@ -135,21 +164,7 @@ function back_up() {
   local now_after="$(date "+%s")"
   local elapsed_seconds="$(($now_after-$now))"
 
-  if test -n "$slack_webhook"; then
-    local backup_message="Successful"
-    test -n "$backup_type" && backup_message="$backup_message $backup_type"
-    backup_message="$backup_message backup for $backup_name"
-
-    local backup_duration="${elapsed_seconds}s"
-    test "$elapsed_seconds" -eq 0 && backup_duration="< 1s"
-
-    cat "${templates_dir}/slack-success.json" | \
-      backup_message="$backup_message" backup_name="$backup_name" backup_type="$backup_type" backup_duration="$backup_duration" backup_size="\`${backup_size}\`" backup_destination="\`${rclone_dest}\`" envsubst | \
-      "$curl_bin" \
-        --data-binary @- \
-        -H "Content-Type: application/json" \
-        "$slack_webhook"
-  fi
+  slack_success "$backup_name" "$backup_type" "$backup_duration" "$backup_size" "$rclone_dest"
 }
 
 function generate_backup_cron() {
@@ -196,8 +211,8 @@ backup_name="${BACLIUP_BACKUP_NAME:-backup}"
 backup_configs_dir="${BACLIUP_BACKUP_CONFIGS_DIR:-/etc/bacliup/backups}"
 backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-"dest:"}"
-IFS=',' read -r -a gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
-gpg_cli_recipients=()
+IFS=',' read -r -a backup_gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
+backup_gpg_cli_recipients=()
 
 # Storage options
 rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE}"
@@ -213,7 +228,7 @@ positional_args=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -r|--gpg-recipient)
-      gpg_cli_recipients+=("$2")
+      backup_gpg_cli_recipients+=("$2")
       shift
       shift
     ;;
@@ -248,7 +263,7 @@ done
 set -- "${positional_args[@]}"
 
 # Override environment variables with command-line arguments.
-test "${#gpg_cli_recipients[@]}" -ge 1 && gpg_recipients=("${gpg_cli_recipients[@]}")
+test "${#backup_gpg_cli_recipients[@]}" -ge 1 && backup_gpg_recipients=("${backup_gpg_cli_recipients[@]}")
 
 action="backup"
 if [[ "$1" == "backup" ]]; then
@@ -257,9 +272,6 @@ elif [[ "$1" == "cron" ]]; then
   action="cron"
   shift
 fi
-
-backup_to="$(get_config_value "to")"
-backup_to="${backup_to:-${BACLIUP_BACKUP_TO:-dest:}}"
 
 tmp_dir=`create_temporary_directory`
 trap "local_cleanup $tmp_dir" EXIT

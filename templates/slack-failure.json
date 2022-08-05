@@ -2,29 +2,29 @@
   "attachments": [
     {
       "color": "warning",
-      "title": ":warning: ${backup_message}",
+      "title": ":warning:",
       "text": "‎",
       "fields": [
-        { "title": "Backup", "value": "${backup_name}", "short": true },
-        { "title": "Type", "value": "${backup_type}", "short": true },
+        { "title": "Backup", "value": "", "short": true },
+        { "title": "Type", "value": "", "short": true },
         {
           "title": "Duration",
-          "value": "${backup_duration}",
+          "value": "",
           "short": true
         },
         {
           "title": "Size",
-          "value": "${backup_size}",
+          "value": "",
           "short": true
         },
         {
           "title": "Destination",
-          "value": "${backup_destination}"
+          "value": ""
         }
       ]
     },
     {
-      "text": "```\n${backup_log}\n```"
+      "text": ""
     }
   ]
 }
