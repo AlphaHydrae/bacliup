@@ -16,6 +16,6 @@ set -e
   BACLIUP_TAR_BIN \
   BACLIUP_TEMPLATES_DIR
 
-/usr/local/bin/bacliup cron | crontab -
+/usr/local/bin/bacliup init
 
 crond -f -l 0

@@ -168,8 +168,6 @@ function back_up() {
 }
 
 function generate_backup_cron() {
-  test "$#" -gt 0 && fail "Extra positional argument(s) not supported by 'cron' subcommand: $@"
-
   local cron="$(cat <<EOF
 # ┌───────────── minute (0 - 59)
 # │ ┌───────────── hour (0 - 23)
@@ -189,6 +187,20 @@ EOF
   done
 
   echo "$cron"
+}
+
+function import_gpg_key() {
+  test -n "$gpg_import" || return 0
+
+  echo "$gpg_import" | gpg --import || fail "Could not import GPG key"
+}
+
+function init() {
+  test "$#" -gt 0 && fail "Extra positional argument(s) not supported by 'init' subcommand: $@"
+
+  import_gpg_key
+
+  echo "$(generate_backup_cron)" | crontab -e
 }
 
 
@@ -211,6 +223,9 @@ backup_name="${BACLIUP_BACKUP_NAME:-backup}"
 backup_configs_dir="${BACLIUP_BACKUP_CONFIGS_DIR:-/etc/bacliup/backups}"
 backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-"dest:"}"
+
+# Encryption options
+gpg_import="$BACLIUP_GPG_IMPORT"
 IFS=',' read -r -a backup_gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
 backup_gpg_cli_recipients=()
 
@@ -271,8 +286,8 @@ test "${#backup_gpg_cli_recipients[@]}" -ge 1 && backup_gpg_recipients=("${backu
 action="backup"
 if [[ "$1" == "backup" ]]; then
   shift
-elif [[ "$1" == "cron" ]]; then
-  action="cron"
+elif [[ "$1" == "init" ]]; then
+  action="init"
   shift
 fi
 
@@ -286,5 +301,5 @@ exec &> >(tee -a "$log_file")
 if [[ "$action" == "backup" ]]; then
   back_up "$@"
 elif [[ "$action" == "cron" ]]; then
-  generate_backup_cron "$@"
+  init "$@"
 fi
