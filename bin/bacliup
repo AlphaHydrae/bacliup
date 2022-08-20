@@ -185,7 +185,7 @@ EOF
 
   for backup_config in "$(list_configs)"; do
     cron_schedule="$(get_config_value "$backup_config" cron)"
-    cron="$(printf "${cron}\n\n${cron_schedule} /usr/local/bin/bacliup $backup_config &>/dev/stdout\n")"
+    cron="$(printf "${cron}\n\n${cron_schedule} ${cron_script} ${backup_config} &>/dev/stdout\n")"
   done
 
   echo "$cron"
@@ -213,6 +213,9 @@ backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-"dest:"}"
 IFS=',' read -r -a backup_gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
 backup_gpg_cli_recipients=()
+
+# Cron options
+cron_script="${BACLIUP_CRON_SCRIPT:-/usr/local/bin/bacliup}"
 
 # Storage options
 rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE}"

@@ -8,6 +8,8 @@ RUN chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
 
 FROM alpine:3.16.1
 
+ENV BACLIUP_CRON_SCRIPT="/usr/local/bin/with-env /usr/local/bin/bacliup"
+
 RUN apk add --no-cache bash curl gnupg jq pv && \
     apk add --no-cache --virtual .build-deps \
       ca-certificates \

@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
+/usr/local/bin/dump-env \
+  BACLIUP_BACKUP_CONFIGS_DIR \
+  BACLIUP_BACKUP_NAME \
+  BACLIUP_BACKUP_SCRIPT \
+  BACLIUP_BACKUP_TO \
+  BACLIUP_BACKUP_TYPE \
+  BACLIUP_CURL_BIN \
+  BACLIUP_GPG_BIN \
+  BACLIUP_GPG_RECIPIENT \
+  BACLIUP_RCLONE_BIN \
+  BACLIUP_RCLONE_CONFIG_FILE \
+  BACLIUP_SLACK_WEBHOOK \
+  BACLIUP_TAR_BIN \
+  BACLIUP_TEMPLATES_DIR
+
 /usr/local/bin/bacliup cron | crontab -
 
 crond -f -l 0
