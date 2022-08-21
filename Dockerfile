@@ -3,8 +3,10 @@ FROM alpine:3.16.1 as builder
 COPY ./bin/bacliup /fs/usr/local/bin/
 COPY ./docker/ /fs/
 
-RUN chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
-    chmod 600 /fs/bacliup/.config/rclone/rclone.conf
+RUN mkdir /fs/var/run/bacliup/environment && \
+    chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
+    chmod 600 /fs/bacliup/.config/rclone/rclone.conf && \
+    chmod 700 /var/run/bacliup
 
 FROM alpine:3.16.1
 
