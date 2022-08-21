@@ -183,7 +183,7 @@ EOF
 
   for backup_config in "$(list_configs)"; do
     cron_schedule="$(get_config_value "$backup_config" cron)"
-    cron="$(printf "${cron}\n\n${cron_schedule} ${cron_script} ${backup_config} &>/dev/stdout\n")"
+    cron="$(printf "${cron}\n\n${cron_schedule} bacliup ${cron_script} ${backup_config} &>/dev/stdout\n")"
   done
 
   echo "$cron"

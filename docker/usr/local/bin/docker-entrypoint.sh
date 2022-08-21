@@ -18,4 +18,4 @@ set -e
 
 /usr/local/bin/bacliup init
 
-crond -f -l 0
+exec crond -f -l 0
