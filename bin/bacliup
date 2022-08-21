@@ -123,9 +123,9 @@ function back_up() {
 
   test "$#" -eq 0 || fail "Extra positional argument(s) not supported by 'backup' subcommand: $@"
 
-  local backup_to="$(get_config_value "$backup_type" "to")"
-  backup_to="${backup_to:-${BACLIUP_BACKUP_TO:-dest:}}"
-  backup_to="$(printf "$backup_to" | backup_name="$backup_name" envsubst '$backup_name')"
+  local backup_to_from_config="$(get_config_value "$backup_type" "to")"
+  local backup_to="${BACLIUP_BACKUP_TO:-${backup_to_from_config:-dest:}}"
+  backup_to="$(printf "$backup_to" | backup_name="$backup_name" backup_type="$backup_type" envsubst '$backup_name $backup_type')"
 
   local backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
   local backup_directory_name="${backup_name}.${backup_timestamp}"
