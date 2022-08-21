@@ -210,7 +210,7 @@ function init() {
 
   import_gpg_key
 
-  echo "$(generate_backup_cron)" | crontab -e
+  echo "$(generate_backup_cron)" | crontab -
 }
 
 
