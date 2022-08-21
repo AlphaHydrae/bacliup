@@ -3,16 +3,15 @@ FROM alpine:3.16.1 as builder
 COPY ./bin/bacliup /fs/usr/local/bin/
 COPY ./docker/ /fs/
 
-RUN mkdir /fs/var/run/bacliup/environment && \
-    chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
-    chmod 600 /fs/bacliup/.config/rclone/rclone.conf && \
-    chmod 700 /var/run/bacliup
+RUN chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
+    chmod 600 /fs/bacliup/.config/rclone/rclone.conf
 
 FROM alpine:3.16.1
 
 ENV BACLIUP_CRON_SCRIPT="/usr/local/bin/with-env /usr/local/bin/bacliup"
 
-RUN apk add --no-cache bash curl gnupg jq pv && \
+RUN mkdir -p /var/run/bacliup/environment && \
+    apk add --no-cache bash curl gnupg jq pv && \
     apk add --no-cache --virtual .build-deps \
       ca-certificates \
       sudo \
@@ -22,6 +21,8 @@ RUN apk add --no-cache bash curl gnupg jq pv && \
     apk del .build-deps && \
     addgroup -S bacliup && \
     adduser -D -G bacliup -h /bacliup -S -s /bin/bash bacliup && \
+    chown -R bacliup:bacliup /var/run/bacliup && \
+    chmod -R 700 /var/run/bacliup && \
     gpg --version && \
     rclone --version
 
