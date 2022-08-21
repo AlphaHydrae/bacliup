@@ -190,9 +190,14 @@ EOF
 }
 
 function import_gpg_key() {
-  test -n "$gpg_import" || return 0
+  test -n "$gpg_import_key" || return 0
 
-  echo "$gpg_import" | gpg --import || fail "Could not import GPG key"
+  echo "$gpg_import_key" | gpg --import || fail "Could not import GPG key"
+
+  if test -n "$gpg_import_key_id"; then
+    echo "${gpg_import_key_id}:6:" > "${tmp_dir}/gpg-ownertrust"
+    gpg --import-ownertrust "${tmp_dir}/gpg-ownertrust" || fail "Could not configure GPG ownertrust"
+  fi
 }
 
 function init() {
@@ -225,7 +230,8 @@ backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-"dest:"}"
 
 # Encryption options
-gpg_import="$BACLIUP_GPG_IMPORT"
+gpg_import_key="$BACLIUP_GPG_IMPORT_KEY"
+gpg_import_key_id="$BACLIUP_GPG_IMPORT_KEY_ID"
 IFS=',' read -r -a backup_gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
 backup_gpg_cli_recipients=()
 
