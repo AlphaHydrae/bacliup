@@ -300,6 +300,6 @@ exec &> >(tee -a "$log_file")
 
 if [[ "$action" == "backup" ]]; then
   back_up "$@"
-elif [[ "$action" == "cron" ]]; then
+elif [[ "$action" == "init" ]]; then
   init "$@"
 fi
