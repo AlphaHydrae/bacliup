@@ -19,8 +19,8 @@ RUN mkdir -p /var/run/bacliup/environment && \
     && \
     curl https://rclone.org/install.sh | sudo bash && \
     apk del .build-deps && \
-    addgroup -S bacliup && \
-    adduser -D -G bacliup -h /bacliup -S -s /bin/bash bacliup && \
+    addgroup -g 4200 -S bacliup && \
+    adduser -D -G bacliup -h /bacliup -S -s /bin/bash -u 4200 bacliup && \
     chown -R bacliup:bacliup /var/run/bacliup && \
     chmod -R 700 /var/run/bacliup && \
     rm -f /etc/crontabs/root && \
