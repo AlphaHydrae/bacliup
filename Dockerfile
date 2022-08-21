@@ -11,7 +11,7 @@ FROM alpine:3.16.1
 ENV BACLIUP_CRON_SCRIPT="/usr/local/bin/with-env /usr/local/bin/bacliup"
 
 RUN mkdir -p /var/run/bacliup/environment && \
-    apk add --no-cache bash busybox-suid curl gnupg jq pv && \
+    apk add --no-cache bash busybox-suid curl gettext gnupg jq pv && \
     apk add --no-cache --virtual .build-deps \
       ca-certificates \
       sudo \
