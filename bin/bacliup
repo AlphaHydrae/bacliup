@@ -155,6 +155,11 @@ function back_up() {
   local final_size_file="${tmp_dir}/final-size.pv"
   local now="$(date "+%s")"
 
+  echo "Backing up..."
+  echo "  ${tar_cmd[@]} | \\"
+  echo "  ${gpg_cmd[@]} | \\"
+  echo "  ${rclone_cmd[@]}"
+
   "${tar_cmd[@]}" | \
     "${gpg_cmd[@]}" | \
     pv -bf 2>"$final_size_file" | \
