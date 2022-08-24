@@ -13,6 +13,25 @@
 
 
 
+## Exit codes
+
+Bacliup will exit with the following codes when known errors occur:
+
+| Code | Description                                                                                                    |
+| :--- | :------------------------------------------------------------------------------------------------------------- |
+| 1    | An unexpected error occurred.                                                                                  |
+| 2    | A required argument is missing.                                                                                |
+| 3    | A provided argument is invalid.                                                                                |
+| 4    | Unsupported extra arguments were provided.                                                                     |
+| 100  | The backup script specifie with `$BACLIUP_BACKUP_SCRIPT` does not exist.                                       |
+| 140  | One of the GPG recipients specified with `$BACLIUP_GPG_RECIPIENT` cannot be found.                             |
+| 141  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be imported.                                     |
+| 142  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be trusted.                                      |
+| 160  | The configured backup destination is not a valid rclone path (e.g. `dest:path`).                               |
+| 161  | The remote storage specified in the configured backup destination cannot be found in the rclone configuration. |
+
+
+
 [bash]: https://www.gnu.org/software/bash/
 [cron]: https://en.wikipedia.org/wiki/Cron
 [curl]: https://curl.se

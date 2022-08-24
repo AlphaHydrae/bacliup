@@ -27,6 +27,23 @@ function common_setup() {
   twd="${tmp_dir}/twd"
   export HOME="$twd"
 
+  unset BACLIUP_BACKUP_CONFIGS_DIR
+  unset BACLIUP_BACKUP_NAME
+  unset BACLIUP_BACKUP_SCRIPT
+  unset BACLIUP_BACKUP_TO
+  unset BACLIUP_BACKUP_TYPE
+  unset BACLIUP_CRON_SCRIPT
+  unset BACLIUP_CURL_BIN
+  unset BACLIUP_GPG_BIN
+  unset BACLIUP_GPG_IMPORT_KEY
+  unset BACLIUP_GPG_IMPORT_KEY_ID
+  unset BACLIUP_GPG_RECIPIENT
+  unset BACLIUP_RCLONE_BIN
+  unset BACLIUP_RCLONE_CONFIG_FILE
+  unset BACLIUP_SLACK_WEBHOOK
+  unset BACLIUP_TAR_BIN
+  unset BACLIUP_TEMPLATES_DIR
+
   mkdir "$twd"
   cd "$twd"
 }

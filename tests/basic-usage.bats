@@ -9,6 +9,8 @@ function teardown() {
   common_teardown
 }
 
-@test "hello test" {
-  assert_success
+@test "bacliup fails if it cannot find the backup script" {
+  run bacliup
+  assert_failure 100
+  assert_output "Backup script /usr/local/bin/backup does not exist"
 }

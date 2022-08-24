@@ -1,0 +1,6 @@
+source $HOME/.screenrc
+
+screen -t sh 0
+screen -t spec 1
+stuff "make watch\012"
+select sh

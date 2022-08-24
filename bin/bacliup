@@ -46,8 +46,10 @@ function element_in_array() {
 }
 
 function fail() {
+  local code="$1"
+  shift
   >&2 echo "$@"
-  exit 1
+  exit $code
 }
 
 function get_config_value() {
@@ -121,7 +123,8 @@ function back_up() {
     shift
   fi
 
-  test "$#" -eq 0 || fail "Extra positional argument(s) not supported by 'backup' subcommand: $@"
+  test "$#" -eq 0 || fail 4 "Extra positional argument(s) not supported by 'backup' subcommand: $@"
+  test -f "$backup_script" || fail 100 "Backup script ${backup_script} does not exist"
 
   local backup_to_from_config="$(get_config_value "$backup_type" "to")"
   local backup_to="${BACLIUP_BACKUP_TO:-${backup_to_from_config:-dest:}}"
@@ -141,14 +144,14 @@ function back_up() {
   local gpg_cmd=("$gpg_bin" "--armor" "--batch" "--encrypt")
   for recipient in "${backup_gpg_recipients[@]}"; do
     check_gpg_recipient_available "$recipient" || \
-      fail "GPG recipient '${recipient}' cannot be found. Is the GPG key in the keyring?"
+      fail 140 "GPG recipient '${recipient}' cannot be found. Is the GPG key in the keyring?"
 
     gpg_cmd+=("--recipient" "$recipient")
   done
 
   local rclone_remote="$(get_rclone_remote_from_path "$backup_to")"
-  test -n "$rclone_remote" || fail "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
-  check_rclone_remote_available "$rclone_remote" || fail "Backup remote $rclone_remote cannot be found. Is it defined in the rclone configuration file?"
+  test -n "$rclone_remote" || fail 160 "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
+  check_rclone_remote_available "$rclone_remote" || fail 161 "Backup remote $rclone_remote cannot be found. Is it defined in the rclone configuration file?"
   local rclone_dest="${backup_to%/}/${current_backup_basename}"
   local rclone_cmd=($(build_rclone_command rcat "$rclone_dest"))
 
@@ -197,16 +200,16 @@ EOF
 function import_gpg_key() {
   test -n "$gpg_import_key" || return 0
 
-  echo "$gpg_import_key" | gpg --import || fail "Could not import GPG key"
+  echo "$gpg_import_key" | gpg --import || fail 141 "Could not import GPG key"
 
   if test -n "$gpg_import_key_id"; then
     echo "${gpg_import_key_id}:6:" > "${tmp_dir}/gpg-ownertrust"
-    gpg --import-ownertrust "${tmp_dir}/gpg-ownertrust" || fail "Could not configure GPG ownertrust"
+    gpg --import-ownertrust "${tmp_dir}/gpg-ownertrust" || fail 142 "Could not configure GPG ownertrust"
   fi
 }
 
 function init() {
-  test "$#" -gt 0 && fail "Extra positional argument(s) not supported by 'init' subcommand: $@"
+  test "$#" -gt 0 && fail 4 "Extra positional argument(s) not supported by 'init' subcommand: $@"
 
   import_gpg_key
 
