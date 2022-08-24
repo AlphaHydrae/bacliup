@@ -124,7 +124,8 @@ function back_up() {
   fi
 
   test "$#" -eq 0 || fail 4 "Extra positional argument(s) not supported by 'backup' subcommand: $@"
-  test -f "$backup_script" || fail 100 "Backup script ${backup_script} does not exist"
+  test -e "$backup_script" || fail 100 "Backup script ${backup_script} does not exist"
+  test -f "$backup_script" || fail 101 "Backup script ${backup_script} is not a file"
 
   local backup_to_from_config="$(get_config_value "$backup_type" "to")"
   local backup_to="${BACLIUP_BACKUP_TO:-${backup_to_from_config:-dest:}}"

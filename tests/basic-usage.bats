@@ -14,3 +14,11 @@ function teardown() {
   assert_failure 100
   assert_output "Backup script /usr/local/bin/backup does not exist"
 }
+
+@test "bacliup fails if the backup script is not a file" {
+  mkdir foo
+  export BACLIUP_BACKUP_SCRIPT=foo
+  run bacliup
+  assert_failure 101
+  assert_output "Backup script foo is not a file"
+}
