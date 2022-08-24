@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -e
+
+function fail() {
+  >&2 echo "$@"
+  exit 1
+}
+
+function watch() {
+  local func="$1"
+  local checksum1=""
+
+  while [[ true ]]; do
+    local checksum2=`find bin/ scripts/ tests/ -type f -exec md5sum {} \;`
+    if [[ "$checksum1" != "$checksum2" ]]; then
+      $func
+      checksum1="$checksum2"
+    fi
+    sleep 2
+  done
+}
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+root_dir="$(dirname "$script_dir")"
+watch=
+
+POSITIONAL=()
+while [[ "$#" -gt 0 ]]; do
+  key="$1"
+  shift
+
+  case "$key" in
+    -w|--watch)
+      watch=true
+    ;;
+    *)
+      POSITIONAL+=("$1")
+      shift
+    ;;
+  esac
+done
+
+# Restore positional parameters.
+set -- "${POSITIONAL[@]}"
+
+function run_tests() {
+  bats -j "$(nproc --all)" ./tests/
+}
+
+test -n "$watch" && watch "run_tests" || run_tests
