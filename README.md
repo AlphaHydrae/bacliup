@@ -4,6 +4,7 @@
 > scripting is good enough_. Also comes with a Docker image.**
 
 [![build](https://github.com/AlphaHydrae/bacliup/actions/workflows/build.yml/badge.svg)](https://github.com/AlphaHydrae/bacliup/actions/workflows/build.yml)
+[![license](https://img.shields.io/github/license/AlphaHydrae/bacliup)](https://opensource.org/licenses/MIT)
 
 * Back up anything you can access from a [Bash][bash] script, using [tar][tar],
   [gzip][gzip] and [GnuPG][gnupg] to create, compress and encrypt archives.
