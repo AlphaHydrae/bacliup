@@ -23,7 +23,9 @@ Bacliup will exit with the following codes when known errors occur:
 | 2    | A required argument is missing.                                                                                |
 | 3    | A provided argument is invalid.                                                                                |
 | 4    | Unsupported extra arguments were provided.                                                                     |
-| 100  | The backup script specifie with `$BACLIUP_BACKUP_SCRIPT` does not exist.                                       |
+| 100  | The backup script specified with `$BACLIUP_BACKUP_SCRIPT` does not exist.                                      |
+| 101  | The backup script specified with `$BACLIUP_BACKUP_SCRIPT` is not a file.                                       |
+| 102  | The backup script specified with `$BACLIUP_BACKUP_SCRIPT` is not executable.                                   |
 | 140  | One of the GPG recipients specified with `$BACLIUP_GPG_RECIPIENT` cannot be found.                             |
 | 141  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be imported.                                     |
 | 142  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be trusted.                                      |

@@ -17,8 +17,16 @@ function teardown() {
 
 @test "bacliup fails if the backup script is not a file" {
   mkdir foo
-  export BACLIUP_BACKUP_SCRIPT=foo
+  export BACLIUP_BACKUP_SCRIPT=./foo
   run bacliup
   assert_failure 101
-  assert_output "Backup script foo is not a file"
+  assert_output "Backup script ./foo is not a file"
+}
+
+@test "bacliup fails if the backup script is not executable" {
+  touch foo
+  export BACLIUP_BACKUP_SCRIPT=./foo
+  run bacliup
+  assert_failure 102
+  assert_output "Backup script ./foo is not executable"
 }
