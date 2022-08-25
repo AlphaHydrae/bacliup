@@ -3,6 +3,8 @@
 > **A command-line backup solution based on Bash, cron & rclone, _for when shell
 > scripting is good enough_. Also comes with a Docker image.**
 
+[![build](https://github.com/AlphaHydrae/bacliup/actions/workflows/build.yml/badge.svg)](https://github.com/AlphaHydrae/bacliup/actions/workflows/build.yml)
+
 * Back up anything you can access from a [Bash][bash] script, using [tar][tar],
   [gzip][gzip] and [GnuPG][gnupg] to create, compress and encrypt archives.
 * Easy periodic backups with [Cron][cron].
