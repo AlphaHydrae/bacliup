@@ -310,10 +310,6 @@ fi
 tmp_dir=`create_temporary_directory`
 trap "local_cleanup $tmp_dir" EXIT
 
-log_file="${tmp_dir}/bacliup.log"
-touch "$log_file"
-test -f "$log_file" && exec &> >(tee -a "$log_file")
-
 if [[ "$action" == "backup" ]]; then
   back_up "$@"
 elif [[ "$action" == "init" ]]; then
