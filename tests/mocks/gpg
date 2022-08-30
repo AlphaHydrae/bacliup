@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -e
+
+action=
+file=
+output="-"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -d|--decrypt)
+      action=decrypt
+      shift
+    ;;
+    -e|--encrypt)
+      action=encrypt
+      shift
+    ;;
+    --export)
+      action=export
+      shift
+    ;;
+    -f|--file)
+      file="$2"
+      shift
+      shift
+    ;;
+    -o|--output)
+      output="$2"
+      shift
+      shift
+    ;;
+    *)
+      shift
+    ;;
+  esac
+done
+
+[[ "$file" == "" ]] || exit 2
+[[ "$output" == "-" ]] || exit 2
+
+if [[ "$action" == "decrypt" ]]; then
+  cat - | base64 --decode
+elif [[ "$action" == "encrypt" ]]; then
+  cat - | base64
+elif [[ "$action" == "export" ]]; then
+  cat << 'EOF'
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+JPHQZnIRj0plJh04ZCQxeKNPLfSikmFBrDunYJbjwrjlFGAE1MSV53wZy0HaZuw+
+YIucCG/54ZtIeUIB5OJ71wnHeURsAOfxjZYY0pFhelJpKX+yW0NcfBBcAJSXiUpt
+cdP0Oh+u75mfc4mAjiyNrx/fjAmSjZWbsFL6r/ijOypVEKixLv2deBsz1TjiEUor
+vaNd7sBLpaws/yavyiD4J+dovGYVzmi8H22gwiMNlTO9EeSGHkaexBaNBr9VR1Sd
+ED6ofNYe0uA9F7dbbKuk4BwR8BnnTMM+drOZIWWdVl8LYHitthxb9hkSVdA5vXC4
+hOKVrPqfUxqfA/NPAMLkKHSP8hUXpeIBMbNUVaJiphh6ysL3v+iSY5PGyvq4S4H6
+kqCO5CzK7PFsqiY7KHqFnilrgdaYSuwoXaCwXfVuzKXggu5UmUedjtzeMqPyL418
+RBipZOjfuCKOvDZ35aGWvj01vdwN1cFZN1aXMXGmPK9D9VHkxMRbnWzjFmax8LAU
+ZzbK+QtRdb98Ts1vt5L+TM9WpjqodqCJtI9ONmJBpJikT/9l31HQc/mhdJY+87xX
+baCFEMHojsF8KCWYAZUdxPqPz7G/jFSElHdvQTrO6N7Nbxh7Cf+zB5b0DWFlgJ+2
+GzXP7RJAdu0KB/iLzcHORmvJU1o=
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+else
+  exit 42
+fi

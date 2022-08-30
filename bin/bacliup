@@ -202,7 +202,7 @@ EOF
 function import_gpg_key() {
   test -n "$gpg_import_key" || return 0
 
-  echo "$gpg_import_key" | gpg --import || fail 141 "Could not import GPG key"
+  echo "$gpg_import_key" | gpg --batch --import || fail 141 "Could not import GPG key"
 
   if test -n "$gpg_import_key_id"; then
     echo "${gpg_import_key_id}:6:" > "${tmp_dir}/gpg-ownertrust"

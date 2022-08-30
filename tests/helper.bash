@@ -4,6 +4,7 @@ set -e
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 root_dir="$(dirname "$script_dir")"
 bin_dir="${root_dir}/bin"
+mocks_dir="${root_dir}/tests/mocks"
 
 tmp_dirs=()
 trap "cleanup" EXIT
@@ -22,7 +23,7 @@ function common_setup() {
   tmp_dirs+=("$tmp_dir")
   echo "Temporary directory: $tmp_dir"
 
-  PATH="$bin_dir:$PATH"
+  PATH="${bin_dir}:${mocks_dir}:${PATH}"
 
   twd="${tmp_dir}/twd"
   export HOME="$twd"
