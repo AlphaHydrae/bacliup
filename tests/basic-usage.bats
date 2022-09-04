@@ -36,10 +36,14 @@ EOF
 
   backup_file="$(ls -1 target|head -n 1)"
   mkdir result
-  cat "target/${backup_file}" | base64 --decode > result/decrypted.tar
+  cat "target/${backup_file}" | fake_gpg_decrypt > result/decrypted.tar
 
   cd result
   tar -xf decrypted.tar
+  backup_directory="$(echo "$backup_file"|sed 's/\.tar\.gpg$//')"
+  test -d "$backup_directory"
+  test -f "${backup_directory}/hello.txt"
+  assert_equal "$(cat "${backup_directory}/hello.txt")" "Hello, World!"
 }
 
 @test "bacliup fails if it cannot find the backup script" {

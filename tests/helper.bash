@@ -9,6 +9,10 @@ mocks_dir="${root_dir}/tests/mocks"
 tmp_dirs=()
 trap "cleanup" EXIT
 
+function fake_gpg_decrypt() {
+  cat - | base64 --decode
+}
+
 function cleanup() {
   for dir in "${tmp_dirs[@]}"; do
     test -n "$dir" && test -d "$dir" && rm -fr "$dir"
