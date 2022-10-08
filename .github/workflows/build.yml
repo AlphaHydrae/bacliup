@@ -41,6 +41,10 @@ jobs:
           asdf plugin add bats
           asdf install bats
 
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
       - name: Run the automated test suite
         run: |
           make check
