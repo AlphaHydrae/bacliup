@@ -10,7 +10,7 @@ tmp_dirs=()
 trap "cleanup" EXIT
 
 function fake_gpg_decrypt() {
-  cat - | base64 --decode
+  cat - | gunzip -c
 }
 
 function cleanup() {

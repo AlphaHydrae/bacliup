@@ -39,9 +39,9 @@ done
 [[ "$output" == "-" ]] || exit 2
 
 if [[ "$action" == "decrypt" ]]; then
-  cat - | base64 --decode
+  cat - | gunzip -c
 elif [[ "$action" == "encrypt" ]]; then
-  cat - | base64
+  cat - | gzip -c
 elif [[ "$action" == "export" ]]; then
   cat << 'EOF'
 -----BEGIN PGP PUBLIC KEY BLOCK-----
