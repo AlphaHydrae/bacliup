@@ -22,7 +22,7 @@
 - [Configuration](#configuration)
   - [Backup configuration files](#backup-configuration-files)
   - [Command line arguments & environment variables](#command-line-arguments--environment-variables)
-  - [Auto-import GPG encryption key](#auto-import-gpg-encryption-key)
+  - [Import GPG encryption key](#import-gpg-encryption-key)
   - [Slack notifications](#slack-notifications)
   - [Additional configuration](#additional-configuration)
 - [Exit codes](#exit-codes)
@@ -127,13 +127,21 @@ These are the main configuration options for Bacliup:
 | `$BACLIUP_BACKUP_CONFIGS_DIR` | -                           | `/etc/bacliup/backups`  | Directory containing the backup configurations                                                              |
 | `$BACLIUP_BACKUP_SCRIPT`      | `-s`, `--script`            | `/usr/local/bin/backup` | Arbitrary script that will perform the actual backup                                                        |
 | `$BACLIUP_BACKUP_TO`          | `-t`, `--to`                | `dest:`                 | Rclone destination to store the backup to (in the format `remote:path`, where `remote` is an Rclone remote) |
+| `$BACLIUP_BACKUP_TO_PREFIX`   | `--to-prefix`               | -                       | Prefix prepended to `$BACLIUP_BACKUP_TO` or `-t`/`--to` to form the complete Rclone destination             |
+| `$BACLIUP_BACKUP_TO_SUFFIX`   | `--to-suffix`               | -                       | Suffix appended to `$BACLIUP_BACKUP_TO` or `-t`/`--to` to form the complete Rclone destination              |
 | `$BACLIUP_GPG_RECIPIENT`      | `-r`, `--gpg-recipient`     | -                       | Comma-separated GPG recipients for backup encryption                                                        |
 
-### Auto-import GPG encryption key
+### Import GPG encryption key
 
-You can set the following environment variables to have Bacliup automatically
-import a GPG public key before performing the backup. The key will also be
-configured for ultimate trust.
+Bacliup can import a GPG encryption key for you:
+
+```bash
+bacliup import-gpg
+```
+
+This requires setting the `$BACLIUP_GPG_IMPORT_KEY` environment variable. If you
+also set `$BACLIUP_GPG_IMPORT_KEY_ID` to the ID of that key, the key will also
+be configured for ultimate trust.
 
 | Environment variable         | Default value | Description                                    |
 | :--------------------------- | :------------ | :--------------------------------------------- |

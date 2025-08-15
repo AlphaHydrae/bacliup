@@ -145,7 +145,9 @@ function back_up() {
 
   local backup_to_from_config="$(get_config_value "$backup_type" "to")"
   local backup_to="${BACLIUP_BACKUP_TO:-${backup_to_from_config:-dest:}}"
-  backup_to="$(printf "$backup_to" | backup_name="$backup_name" backup_type="$backup_type" envsubst '$backup_name $backup_type')"
+  local backup_to_prefix="${BACLIUP_BACKUP_TO_PREFIX}"
+  local backup_to_suffix="${BACLIUP_BACKUP_TO_SUFFIX}"
+  backup_to="$(printf "${backup_to_prefix}${backup_to}${backup_to_suffix}" | backup_name="$backup_name" backup_type="$backup_type" envsubst '$backup_name $backup_type')"
 
   local backup_timestamp="$(date -u "+%Y%m%dT%H%M%SZ")"
   local backup_directory_name="${backup_name}.${backup_timestamp}"
@@ -262,6 +264,8 @@ backup_name="${BACLIUP_BACKUP_NAME:-backup}"
 backup_configs_dir="${BACLIUP_BACKUP_CONFIGS_DIR:-/etc/bacliup/backups}"
 backup_script="${BACLIUP_BACKUP_SCRIPT:-/usr/local/bin/backup}"
 backup_to="${BACLIUP_BACKUP_TO:-"dest:"}"
+backup_to_prefix="${BACLIUP_BACKUP_TO_PREFIX}"
+backup_to_suffix="${BACLIUP_BACKUP_TO_SUFFIX}"
 
 # Encryption options
 gpg_import_key="$BACLIUP_GPG_IMPORT_KEY"
@@ -308,6 +312,16 @@ while [[ $# -gt 0 ]]; do
     ;;
     -t|--to)
       backup_to="$2"
+      shift
+      shift
+    ;;
+    --to-prefix)
+      backup_to_prefix="$2"
+      shift
+      shift
+    ;;
+    --to-suffix)
+      backup_to_suffix="$2"
       shift
       shift
     ;;
