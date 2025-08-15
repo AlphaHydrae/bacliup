@@ -39,16 +39,10 @@ done
 [[ "$output" == "-" ]] || exit 2
 
 if [[ "$action" == "decrypt" ]]; then
-  echo "Fake GPG decrypting file: '${file}'" >&2
   cat - | gunzip -c
 elif [[ "$action" == "encrypt" ]]; then
-  cat - > /tmp/tmp.test
-  echo "Fake GPG encrypting file: '$(cat /tmp/tmp.test)'" >&2
-  cat /tmp/tmp.test | gzip -c > /tmp/tmp.test.output
-  echo "Fake GPG done encrypting file: '$(cat /tmp/tmp.test.output)'" >&2
-  cat /tmp/tmp.test.output
+  cat - | gzip -c
 elif [[ "$action" == "export" ]]; then
-  echo "Fake GPG exporting" >&2
   cat << 'EOF'
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
