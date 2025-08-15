@@ -45,3 +45,12 @@ jobs:
       - name: Run the automated test suite
         run: |
           make check
+
+      - name: Build the Dockerfile variants
+        run: |
+          ./scripts/build
+
+      - name: Ensure there are no uncommitted changes
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"
