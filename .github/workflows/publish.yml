@@ -2,8 +2,11 @@ name: Publish Docker image
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - "v*"
+      - v*
+  workflow_dispatch:
 
 env:
   IMAGE: alphahydrae/bacliup
