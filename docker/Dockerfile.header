@@ -9,7 +9,14 @@ COPY ./templates/ /fs/etc/bacliup/templates/
 
 RUN mkdir -p /fs/bacliup/.gnupg /fs/etc/bacliup/backups /fs/var/lib/bacliup && \
     chown -R bacliup:bacliup /fs/bacliup /fs/etc/bacliup /fs/var/lib/bacliup && \
-    chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone /fs/etc/bacliup /fs/var/lib/bacliup && \
+    chmod 700 \
+      /fs/bacliup \
+      /fs/bacliup/.config \
+      /fs/bacliup/.config/rclone \
+      /fs/bacliup/.gnupg \
+      /fs/etc/bacliup \
+      /fs/var/lib/bacliup \
+    && \
     chmod 600 /fs/bacliup/.config/rclone/rclone.conf
 
 FROM alpine:3.22.1
