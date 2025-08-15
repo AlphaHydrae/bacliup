@@ -108,7 +108,7 @@ jobs:
           push: true
           tags: ${{ steps.postgresql-meta.outputs.tags }}
           labels: ${{ steps.postgresql-meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-postgresql
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE }}:postgresql
           cache-to: type=inline
 
       # https://github.com/actions/attest-build-provenance
