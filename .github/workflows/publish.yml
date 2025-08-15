@@ -16,6 +16,11 @@ jobs:
   publish:
     name: Build and push the Docker image to Docker Hub
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
       # https://github.com/actions/checkout
       - name: Check out the repository
