@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    name: Build the Docker images
+    name: Build the main Docker
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v5
@@ -24,7 +24,7 @@ jobs:
 
   build-postgresql:
     runs-on: ubuntu-24.04
-    name: Build the Docker images
+    name: Build the PostgreSQL Docker image
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v5
@@ -35,7 +35,7 @@ jobs:
 
   check-consistency:
     runs-on: ubuntu-24.04
-    name: Run automated tests
+    name: Check consistency of the repository
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v5
