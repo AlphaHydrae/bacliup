@@ -31,7 +31,7 @@ RUN mkdir -p /var/run/bacliup/environment && \
     gpg --version && \
     rclone --version
 
-ENV BACLIUP_CRON_SCRIPT="/usr/local/bin/with-env /usr/bin/sudo -u bacliup /usr/local/bin/bacliup" \
+ENV BACLIUP_CRON_SCRIPT="/usr/bin/sudo -u bacliup /usr/local/bin/bacliup" \
     BACLIUP_TEMPLATES_DIR="/etc/bacliup/templates"
 
 WORKDIR /bacliup
