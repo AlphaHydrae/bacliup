@@ -1,12 +1,13 @@
+    && \
     apk add --no-cache --virtual .build-deps \
       ca-certificates \
       sudo \
       unzip \
     && \
-    curl https://rclone.org/install.sh | sudo bash && \
+    curl https://rclone.org/install.sh?v=a | sudo bash && \
     apk del .build-deps && \
-    addgroup -g 4200 -S bacliup && \
-    adduser -D -G bacliup -h /bacliup -S -s /bin/bash -u 4200 bacliup && \
+    addgroup -S bacliup && \
+    adduser -D -G bacliup -h /bacliup -S -s /bin/bash bacliup && \
     rm -f /etc/crontabs/root && \
     tar --version && \
     gpg --version && \
@@ -18,5 +19,7 @@ ENV BACLIUP_CRON_SCRIPT="/usr/bin/sudo -u bacliup /usr/local/bin/bacliup" \
 WORKDIR /bacliup
 
 COPY --from=builder /fs/ /
+
+RUN chown -R bacliup:bacliup /bacliup /etc/bacliup /var/lib/bacliup
 
 CMD [ "/usr/local/bin/docker-entrypoint.sh" ]

@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
 set -e
 
+function chown_if_possible() {
+  local file="$1"
+  chown -h bacliup:bacliup "$file" || echo "Skipped changing ownership of ${file}."
+}
+
+uid_or_gid_changed=
+
+gid=$(id -g bacliup)
+if [ -n "$BACLIUP_GID" ] && [ "$gid" != "$BACLIUP_GID" ]; then
+  echo "Changing bacliup group GID from ${gid} to ${BACLIUP_GID}..."
+  gid="${BACLIUP_GID}"
+  groupmod -g "$gid" bacliup
+  uid_or_gid_changed=1
+fi
+
+uid=$(id -u bacliup)
+if [ -n "$BACLIUP_UID" ] && [ "$uid" != "$BACLIUP_UID" ]; then
+  echo "Changing bacliup user UID from ${uid} to ${BACLIUP_UID}..."
+  uid="${BACLIUP_UID}"
+  usermod -u "$uid" bacliup
+  uid_or_gid_changed=1
+fi
+
+if test -n "$uid_or_gid_changed"; then
+  export -f chown_if_possible
+  for dir in /bacliup /etc/bacliup /var/lib/bacliup; do
+    echo "Updating ownership of bacliup files in ${dir}..."
+    find "$dir" -xdev -exec bash -c 'chown_if_possible "$@"' bash {} \;
+  done
+fi
+
 if test -n "$BACLIUP_MINUTELY_TO"; then
   printf "Configuring minutely backups..."
   cron="${BACLIUP_MINUTELY_CRON:-"* * * * *"}"

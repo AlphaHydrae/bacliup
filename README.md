@@ -187,6 +187,8 @@ provided Dockerfile:
 | `$BACLIUP_MONTHLY_HOUR`           | `0`           | Hour of the day at which the monthly backups will run                                                      |
 | `$BACLIUP_MONTHLY_DAY`            | `0`           | Day of the month on which the monthly backups will run                                                     |
 | `$BACLIUP_MONTHLY_CRON`           | `15 0 * * *`  | Cron schedule for the monthly backups (built from `$BACLIUP_MONTHLY_MINUTE/HOUR/DAY` by default)           |
+| `$BACLIUP_UID`                    | -             | If set, the UID of the `bacliup` user in the container will be changed on startup                          |
+| `$BACLIUP_GID`                    | -             | If set, the GID of the `bacliup` user in the container will be changed on startup                          |
 
 ### Additional configuration
 
