@@ -193,6 +193,8 @@ function back_up() {
     "${rclone_cmd[@]}"
 
   echo '@@@@@@@@@@@@@@@@@@@ 6.1'
+  echo "backup to: $backup_to"
+  echo '@@@@@@@@@@@@@@@@@@@'
 
   local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
   local now_after="$(date "+%s")"
@@ -200,6 +202,7 @@ function back_up() {
 
   slack_success "$backup_name" "$backup_type" "$backup_duration" "$backup_size" "$rclone_dest"
 
+  echo '@@@@@@@@@@@@@@@@@@@ 7.1'
   exit 1
   echo '@@@@@@@@@@@@@@@@@@@ done'
 }
