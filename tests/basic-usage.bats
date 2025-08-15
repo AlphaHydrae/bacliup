@@ -14,7 +14,7 @@ function teardown() {
 #!/usr/bin/env bash
 set -e
 
-echo "Hello, World!" > $BACKUP_DIR/hello.txt
+echo "Hello, World!" > hello.txt
 EOF
 
   chmod 755 backup
@@ -28,7 +28,7 @@ EOF
   mkdir target
 
   export BACLIUP_BACKUP_SCRIPT="${PWD}/backup"
-  export BACLIUP_BACKUP_TO=dest:target
+  export BACLIUP_BACKUP_TO="dest:target"
   export BACLIUP_GPG_RECIPIENT="Bacliup (Test) <bacliup@alphahydrae.dev>"
 
   run bacliup

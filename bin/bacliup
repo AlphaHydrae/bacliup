@@ -138,6 +138,7 @@ function back_up() {
   local current_backup_basename="${backup_directory_name}.tar.gpg"
 
   mkdir "$current_backup_dir"
+  cd "$current_backup_dir"
 
   BACKUP_DIR="$current_backup_dir" "$backup_script"
 
