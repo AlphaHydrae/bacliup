@@ -36,8 +36,9 @@ jobs:
         with:
           asdf_branch: v0.18.0
 
-      - name: Install rclone
+      - name: Install pv & rclone
         run: |
+          apt install -y pv
           curl https://rclone.org/install.sh | sudo bash
 
       - name: Run the automated test suite
