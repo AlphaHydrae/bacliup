@@ -9,7 +9,14 @@ COPY ./templates/ /fs/etc/bacliup/templates/
 
 RUN mkdir -p /fs/bacliup/.gnupg /fs/etc/bacliup/backups /fs/var/lib/bacliup && \
     chown -R bacliup:bacliup /fs/bacliup /fs/etc/bacliup /fs/var/lib/bacliup && \
-    chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone /fs/etc/bacliup /fs/var/lib/bacliup && \
+    chmod 700 \
+      /fs/bacliup \
+      /fs/bacliup/.config \
+      /fs/bacliup/.config/rclone \
+      /fs/bacliup/.gnupg \
+      /fs/etc/bacliup \
+      /fs/var/lib/bacliup \
+    && \
     chmod 600 /fs/bacliup/.config/rclone/rclone.conf
 
 FROM alpine:3.22.1
@@ -47,6 +54,13 @@ WORKDIR /bacliup
 
 COPY --from=builder /fs/ /
 
-RUN chown -R bacliup:bacliup /bacliup /etc/bacliup /var/lib/bacliup
+RUN chown -R bacliup:bacliup /bacliup /etc/bacliup /var/lib/bacliup && \
+    chmod 700 \
+      /bacliup \
+      /bacliup/.config \
+      /bacliup/.config/rclone \
+      /bacliup/.gnupg \
+      /etc/bacliup \
+      /var/lib/bacliup
 
 CMD [ "/usr/local/bin/docker-entrypoint.sh" ]
