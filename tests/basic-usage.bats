@@ -14,7 +14,7 @@ function teardown() {
 #!/usr/bin/env bash
 set -e
 
-echo "@@@@@@@@@@@ pwd from backup script: '${pwd}'"
+echo "@@@@@@@@@@@ pwd from backup script: '${PWD}'"
 echo "Hello, World!" > hello.txt
 EOF
 
