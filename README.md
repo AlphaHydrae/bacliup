@@ -110,10 +110,11 @@ cron 0 * * * *
 
 The available backup configuration file keys are:
 
-| Key    | Default value | Description                                                                                                |
-| :----- | :------------ | :--------------------------------------------------------------------------------------------------------- |
-| `to`   | `dest:`       | Rclone destination to store the backup to (in the format `remote:path` where `remote` is an Rclone remote) |
-| `cron` | -             | Optional cron schedule to set up for this backup type when configuring cron with `bacliup init`            |
+| Key           | Default value | Description                                                                                                |
+| :------------ | :------------ | :--------------------------------------------------------------------------------------------------------- |
+| `to`          | `dest:`       | Rclone destination to store the backup to (in the format `remote:path` where `remote` is an Rclone remote) |
+| `cron`        | -             | Optional cron schedule to set up for this backup type when configuring cron with `bacliup init`            |
+| `rclone-opts` | -             | Additional options to pass to the `rclone` command                                                         |
 
 ### Command line arguments & environment variables
 
@@ -153,14 +154,15 @@ options:
 
 These other configuration options are also provided:
 
-| Environment variable          | Default value            | Description                                                                 |
-| :---------------------------- | :----------------------- | :-------------------------------------------------------------------------- |
-| `$BACLIUP_CURL_BIN`           | `curl`                   | Path to the `curl` command                                                  |
-| `$BACLIUP_GPG_BIN`            | `gpg`                    | Path to the `gpg` command                                                   |
-| `$BACLIUP_RCLONE_BIN`         | `rclone`                 | Path to the `rclone` command                                                |
-| `$BACLIUP_TAR_BIN`            | `tar`                    | Path to the `tar` command                                                   |
-| `$BACLIUP_CRON_SCRIPT`        | `/usr/local/bin/bacliup` | Path to Bacliup when configuring cron                                       |
-| `$BACLIUP_RCLONE_CONFIG_FILE` | -                        | Custom path to an Rclone configuration file (if not using the default path) |
+| Environment variable          | Command line    | Default value            | Description                                                                 |
+| :---------------------------- | :-------------- | :----------------------- | :-------------------------------------------------------------------------- |
+| `$BACLIUP_CURL_BIN`           | -               | `curl`                   | Path to the `curl` command                                                  |
+| `$BACLIUP_GPG_BIN`            | -               | `gpg`                    | Path to the `gpg` command                                                   |
+| `$BACLIUP_RCLONE_BIN`         | -               | `rclone`                 | Path to the `rclone` command                                                |
+| `$BACLIUP_TAR_BIN`            | -               | `tar`                    | Path to the `tar` command                                                   |
+| `$BACLIUP_CRON_SCRIPT`        | -               | `/usr/local/bin/bacliup` | Path to Bacliup when configuring cron                                       |
+| `$BACLIUP_RCLONE_CONFIG_FILE` | -               | -                        | Custom path to an Rclone configuration file (if not using the default path) |
+| `$BACLIUP_RCLONE_OPTIONS`     | `--rclone-opts` | -                        | Additional options to pass to the `rclone` command                          |
 
 ## Exit codes
 
