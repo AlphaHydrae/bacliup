@@ -36,7 +36,13 @@ EOF
 
   backup_file="$(ls -1 target|head -n 1)"
   mkdir result
+  echo '@@@@@@@@@@@@@@@'
   ls -la target
+  echo '@@@@@@@@@@@@@@@'
+  echo "$PATH"
+  echo '@@@@@@@@@@@@@@@'
+  which gpg
+  echo '@@@@@@@@@@@@@@@'
   cat "target/${backup_file}"
   cat "target/${backup_file}" | fake_gpg_decrypt > result/decrypted.tar
 
