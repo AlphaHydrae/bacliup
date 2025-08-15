@@ -43,7 +43,8 @@ EOF
   echo '@@@@@@@@@@@@@@@'
   which gpg
   echo '@@@@@@@@@@@@@@@'
-  cat "target/${backup_file}"
+  echo "'${cat "target/${backup_file}"}'"
+  echo '@@@@@@@@@@@@@@@'
   cat "target/${backup_file}" | fake_gpg_decrypt > result/decrypted.tar
 
   cd result
