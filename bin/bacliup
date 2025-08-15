@@ -129,10 +129,12 @@ function back_up() {
   test -x "$backup_script" || fail 102 "Backup script ${backup_script} is not executable"
   backup_script="$(realpath "$backup_script")"
 
-  test -e "$rclone_config_file" || fail 103 "Rclone configuration file ${rclone_config_file} does not exist"
-  test -f "$rclone_config_file" || fail 104 "Rclone configuration file ${rclone_config_file} is not a file"
-  test -r "$rclone_config_file" || fail 105 "Rclone configuration file ${rclone_config_file} is not readable"
-  rclone_config_file="$(realpath "$rclone_config_file")"
+  if test -n "$rclone_config_file"; then
+    test -e "$rclone_config_file" || fail 103 "Rclone configuration file ${rclone_config_file} does not exist"
+    test -f "$rclone_config_file" || fail 104 "Rclone configuration file ${rclone_config_file} is not a file"
+    test -r "$rclone_config_file" || fail 105 "Rclone configuration file ${rclone_config_file} is not readable"
+    rclone_config_file="$(realpath "$rclone_config_file")"
+  fi
 
   local backup_to_from_config="$(get_config_value "$backup_type" "to")"
   local backup_to="${BACLIUP_BACKUP_TO:-${backup_to_from_config:-dest:}}"
