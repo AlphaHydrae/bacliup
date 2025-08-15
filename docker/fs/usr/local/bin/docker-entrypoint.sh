@@ -10,6 +10,7 @@ uid_or_gid_changed=
 
 gid=$(id -g bacliup)
 if [ -n "$BACLIUP_GID" ] && [ "$gid" != "$BACLIUP_GID" ]; then
+  echo
   echo "Changing bacliup group GID from ${gid} to ${BACLIUP_GID}..."
   gid="${BACLIUP_GID}"
   groupmod -g "$gid" bacliup
@@ -18,6 +19,7 @@ fi
 
 uid=$(id -u bacliup)
 if [ -n "$BACLIUP_UID" ] && [ "$uid" != "$BACLIUP_UID" ]; then
+  echo
   echo "Changing bacliup user UID from ${uid} to ${BACLIUP_UID}..."
   uid="${BACLIUP_UID}"
   usermod -u "$uid" bacliup
@@ -25,11 +27,20 @@ if [ -n "$BACLIUP_UID" ] && [ "$uid" != "$BACLIUP_UID" ]; then
 fi
 
 if test -n "$uid_or_gid_changed"; then
+  echo
   export -f chown_if_possible
   for dir in /bacliup /etc/bacliup /var/lib/bacliup; do
     echo "Updating ownership of bacliup files in ${dir}..."
     find "$dir" -xdev -exec bash -c 'chown_if_possible "$@"' bash {} \;
   done
+fi
+
+if test -n "$BACLIUP_MINUTELY_TO" || \
+   test -n "$BACLIUP_HOURLY_TO" || \
+   test -n "$BACLIUP_DAILY_TO" || \
+   test -n "$BACLIUP_WEEKLY_TO" || \
+   test -n "$BACLIUP_MONTHLY_TO"; then
+  echo
 fi
 
 if test -n "$BACLIUP_MINUTELY_TO"; then
@@ -39,7 +50,7 @@ if test -n "$BACLIUP_MINUTELY_TO"; then
 to ${BACLIUP_MINUTELY_TO}
 cron ${cron}
 EOF
-  echo ok
+  echo " ok"
 fi
 
 if test -n "$BACLIUP_HOURLY_TO"; then
@@ -50,7 +61,7 @@ if test -n "$BACLIUP_HOURLY_TO"; then
 to ${BACLIUP_HOURLY_TO}
 cron ${cron}
 EOF
-  echo ok
+  echo " ok"
 fi
 
 if test -n "$BACLIUP_DAILY_TO"; then
@@ -62,7 +73,7 @@ if test -n "$BACLIUP_DAILY_TO"; then
 to ${BACLIUP_DAILY_TO}
 cron ${cron}
 EOF
-  echo ok
+  echo " ok"
 fi
 
 if test -n "$BACLIUP_WEEKLY_TO"; then
@@ -75,7 +86,7 @@ if test -n "$BACLIUP_WEEKLY_TO"; then
 to ${BACLIUP_WEEKLY_TO}
 cron ${cron}
 EOF
-  echo ok
+  echo " ok"
 fi
 
 if test -n "$BACLIUP_MONTHLY_TO"; then
@@ -88,7 +99,7 @@ if test -n "$BACLIUP_MONTHLY_TO"; then
 to ${BACLIUP_MONTHLY_TO}
 cron ${cron}
 EOF
-  echo ok
+  echo " ok"
 fi
 
 sudo -u bacliup /usr/local/bin/bacliup import-gpg
