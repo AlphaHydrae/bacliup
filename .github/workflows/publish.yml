@@ -105,6 +105,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile.postgresql
           push: true
           tags: ${{ steps.postgresql-meta.outputs.tags }}
           labels: ${{ steps.postgresql-meta.outputs.labels }}
