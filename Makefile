@@ -1,3 +1,5 @@
+.PHONY: check watch
+
 all: check
 
 check:
