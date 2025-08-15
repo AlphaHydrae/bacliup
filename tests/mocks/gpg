@@ -44,7 +44,9 @@ if [[ "$action" == "decrypt" ]]; then
 elif [[ "$action" == "encrypt" ]]; then
   cat - > /tmp/tmp.test
   echo "Fake GPG encrypting file: '$(cat /tmp/tmp.test)'" >&2
-  cat /tmp/tmp.test | gzip -c
+  cat /tmp/tmp.test | gzip -c > /tmp/tmp.test.output
+  echo "Fake GPG done encrypting file: '$(cat /tmp/tmp.test.output)'" >&2
+  cat /tmp/tmp.test.output
 elif [[ "$action" == "export" ]]; then
   echo "Fake GPG exporting" >&2
   cat << 'EOF'
