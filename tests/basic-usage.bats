@@ -36,6 +36,8 @@ EOF
 
   backup_file="$(ls -1 target|head -n 1)"
   mkdir result
+  ls -la target
+  cat "target/${backup_file}"
   cat "target/${backup_file}" | fake_gpg_decrypt > result/decrypted.tar
 
   cd result
