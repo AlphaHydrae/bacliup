@@ -97,7 +97,7 @@ jobs:
             type=semver,pattern={{major}}-postgresql
             type=semver,pattern={{major}}.{{minor}}-postgresql
             type=semver,pattern={{version}}-postgresql
-            type=raw,value=latest-postgresql,enable={{is_default_branch}}
+            type=raw,value=postgresql,enable={{is_default_branch}}
 
       # https://github.com/docker/build-push-action
       - name: Build and push the PostgreSQL image
