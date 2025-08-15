@@ -156,10 +156,10 @@ import. It will be configured for ultimate trust.
 You can configure backup success notifications in Slack with the following
 options:
 
-| Environment variable          | Default value            | Description                                                                                      |
-| :---------------------------- | :----------------------- | :----------------------------------------------------------------------------------------------- |
-| `$BACLIUP_SLACK_WEBHOOK`      | -                        | Slack webhook URL to send backup success notifications                                           |
-| `$BACLIUP_TEMPLATES_DIR`      | `../templates`           | Directory containing the JSON templates for Slack notifications (relative to the Bacliup script) |
+| Environment variable         | Default value  | Description                                                                                      |
+| :--------------------------- | :------------- | :----------------------------------------------------------------------------------------------- |
+| `$BACLIUP_SLACK_WEBHOOK_URL` | -              | Slack webhook URL to send backup success notifications                                           |
+| `$BACLIUP_TEMPLATES_DIR`     | `../templates` | Directory containing the JSON templates for Slack notifications (relative to the Bacliup script) |
 
 ### Docker configuration
 

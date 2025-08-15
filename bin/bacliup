@@ -100,7 +100,7 @@ function slack_success() {
   local backup_size="$4"
   local backup_destination="$5"
 
-  test -n "$slack_webhook" || return 0
+  test -n "$slack_webhook_url" || return 0
 
   local backup_message=":white_check_mark: Successful"
   test -n "$backup_type" && backup_message="$backup_message $backup_type"
@@ -116,7 +116,7 @@ function slack_success() {
     jq --arg backup_duration "$backup_duration" '(.attachments[0].fields[] | select(.title == "Duration") | .value) |= $backup_duration' | \
     jq --arg backup_size "\`$backup_size\`" '(.attachments[0].fields[] | select(.title == "Size") | .value) |= $backup_size' | \
     jq --arg backup_destination "\`$backup_destination\`" '(.attachments[0].fields[] | select(.title == "Destination") | .value) |= $backup_destination' | \
-    "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$slack_webhook"
+    "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$slack_webhook_url"
 }
 
 
@@ -286,7 +286,7 @@ rclone_options="${BACLIUP_RCLONE_OPTIONS}"
 rclone_config_file="${BACLIUP_RCLONE_CONFIG_FILE}"
 
 # Notification options
-slack_webhook="$BACLIUP_SLACK_WEBHOOK"
+slack_webhook_url="$BACLIUP_SLACK_WEBHOOK_URL"
 
 # Other options
 templates_dir="${BACLIUP_TEMPLATES_DIR:-"${script_path}/../templates"}"
