@@ -36,6 +36,10 @@ jobs:
         with:
           asdf_branch: v0.18.0
 
+      - name: Install Node.js dependencies
+        run: |
+          npm ci
+
       - name: Update tables of contents
         run: |
           npm run doctoc
