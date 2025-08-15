@@ -1,2 +1,0 @@
-to dest:hourly/${backup_name}/
-cron 0 * * * *

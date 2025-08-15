@@ -224,11 +224,15 @@ EOF
 
 function import_gpg_key() {
   test "$#" -gt 0 && fail 4 "Extra positional argument(s) not supported by 'import-gpg' subcommand: $@"
-  test -n "$gpg_import_key" || return 0
+  test -n "$gpg_import_key" || test -n "$gpg_import_key_file" || return 0
 
   echo
   echo "Importing GPG key..."
-  echo "$gpg_import_key" | gpg --batch --import || fail 141 "Could not import GPG key"
+  if test -n "$gpg_import_key"; then
+    echo "$gpg_import_key" | gpg --batch --import || fail 141 "Could not import GPG key"
+  else
+    cat "$gpg_import_key_file" | gpg --batch --import || fail 141 "Could not import GPG key from file ${gpg_import_key_file}"
+  fi
 
   if test -n "$gpg_import_key_id"; then
     echo "${gpg_import_key_id}:6:" > "${tmp_dir}/gpg-ownertrust"
@@ -269,6 +273,7 @@ backup_to_suffix="${BACLIUP_BACKUP_TO_SUFFIX}"
 
 # Encryption options
 gpg_import_key="$BACLIUP_GPG_IMPORT_KEY"
+gpg_import_key_file="$BACLIUP_GPG_IMPORT_KEY_FILE"
 gpg_import_key_id="$BACLIUP_GPG_IMPORT_KEY_ID"
 IFS=',' read -r -a backup_gpg_recipients <<< "$BACLIUP_GPG_RECIPIENT"
 backup_gpg_cli_recipients=()

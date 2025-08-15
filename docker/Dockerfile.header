@@ -7,11 +7,11 @@ COPY ./bin/bacliup /fs/usr/local/bin/
 COPY ./docker/fs/ /fs/
 COPY ./templates/ /fs/etc/bacliup/templates/
 
-RUN chown -R bacliup:bacliup /fs/bacliup /fs/etc/bacliup && \
-    chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
+RUN mkdir -p /fs/etc/bacliup/backups /fs/var/lib/bacliup && \
+    chown -R bacliup:bacliup /fs/bacliup /fs/etc/bacliup /fs/var/lib/bacliup && \
+    chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone /fs/var/lib/bacliup && \
     chmod 600 /fs/bacliup/.config/rclone/rclone.conf
 
 FROM alpine:3.22.1
 
-RUN mkdir -p /var/run/bacliup/environment && \
-    apk add --no-cache bash busybox-suid curl gettext gnupg jq pv sudo && \
+RUN apk add --no-cache bash busybox-suid curl gettext gnupg jq pv sudo && \

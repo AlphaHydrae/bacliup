@@ -21,9 +21,10 @@
 - [How it works](#how-it-works)
 - [Configuration](#configuration)
   - [Backup configuration files](#backup-configuration-files)
-  - [Command line arguments & environment variables](#command-line-arguments--environment-variables)
+  - [Command line options & environment variables](#command-line-options--environment-variables)
   - [Import GPG encryption key](#import-gpg-encryption-key)
   - [Slack notifications](#slack-notifications)
+  - [Docker configuration](#docker-configuration)
   - [Additional configuration](#additional-configuration)
 - [Exit codes](#exit-codes)
 
@@ -116,7 +117,7 @@ The available backup configuration file keys are:
 | `cron`        | -             | Optional cron schedule to set up for this backup type when configuring cron with `bacliup init`            |
 | `rclone-opts` | -             | Additional options to pass to the `rclone` command                                                         |
 
-### Command line arguments & environment variables
+### Command line options & environment variables
 
 These are the main configuration options for Bacliup:
 
@@ -139,14 +140,16 @@ Bacliup can import a GPG encryption key for you:
 bacliup import-gpg
 ```
 
-This requires setting the `$BACLIUP_GPG_IMPORT_KEY` environment variable. If you
-also set `$BACLIUP_GPG_IMPORT_KEY_ID` to the ID of that key, the key will also
-be configured for ultimate trust.
+This requires setting either the `$BACLIUP_GPG_IMPORT_KEY` or the
+`$BACLIUP_GPG_IMPORT_KEY_FILE` environment variable, as well as the
+`$BACLIUP_GPG_IMPORT_KEY_ID` environment variable to the ID of the key to
+import. It will be configured for ultimate trust.
 
-| Environment variable         | Default value | Description                                    |
-| :--------------------------- | :------------ | :--------------------------------------------- |
-| `$BACLIUP_GPG_IMPORT_KEY`    | -             | GPG public key to import for backup encryption |
-| `$BACLIUP_GPG_IMPORT_KEY_ID` | -             | ID of the GPG public key for backup encryption |
+| Environment variable           | Default value | Description                                                      |
+| :----------------------------- | :------------ | :--------------------------------------------------------------- |
+| `$BACLIUP_GPG_IMPORT_KEY`      | -             | GPG public key to import for backup encryption                   |
+| `$BACLIUP_GPG_IMPORT_KEY_FILE` | -             | File containing a GPG public key to import for backup encryption |
+| `$BACLIUP_GPG_IMPORT_KEY_ID`   | -             | ID of the GPG public key for backup encryption                   |
 
 ### Slack notifications
 
@@ -157,6 +160,33 @@ options:
 | :---------------------------- | :----------------------- | :----------------------------------------------------------------------------------------------- |
 | `$BACLIUP_SLACK_WEBHOOK`      | -                        | Slack webhook URL to send backup success notifications                                           |
 | `$BACLIUP_TEMPLATES_DIR`      | `../templates`           | Directory containing the JSON templates for Slack notifications (relative to the Bacliup script) |
+
+### Docker configuration
+
+The following environment variables are specific to Bacliup usage with the
+provided Dockerfile:
+
+| Environment variable              | Default value | Description                                                                                                |
+| :-------------------------------- | :------------ | :--------------------------------------------------------------------------------------------------------- |
+| `$BACLIUP_MINUTELY_TO`            | -             | Rclone destination of the every-minute backups (set to enable)                                             |
+| `$BACLIUP_MINUTELY_CRON`          | `* * * * *`   | Cron schedule for the every-minute backups                                                                 |
+| `$BACLIUP_HOURLY_TO`              | -             | Rclone destination of the hourly backups (set to enable)                                                   |
+| `$BACLIUP_HOURLY_MINUTE`          | `0`           | Minute of the hour at which the hourly backups will run                                                    |
+| `$BACLIUP_HOURLY_CRON`            | `0 * * * *`   | Cron schedule for the hourly backups (built from `$BACLIUP_HOURLY_MINUTE` by default)                      |
+| `$BACLIUP_DAILY_TO`               | -             | Rclone destination of the daily backups (set to enable)                                                    |
+| `$BACLIUP_DAILY_MINUTE`           | `15`          | Minute of the hour at which the daily backups will run                                                     |
+| `$BACLIUP_DAILY_HOUR`             | `0`           | Hour of the day at which the daily backups will run                                                        |
+| `$BACLIUP_DAILY_CRON`             | `15 0 * * *`  | Cron schedule for the daily backups (built from `$BACLIUP_DAILY_MINUTE/HOUR` by default)                   |
+| `$BACLIUP_WEEKLY_TO`              | -             | Rclone destination of the weekly backups (set to enable)                                                   |
+| `$BACLIUP_WEEKLY_MINUTE`          | `30`          | Minute of the hour at which the weekly backups will run                                                    |
+| `$BACLIUP_WEEKLY_HOUR`            | `0`           | Hour of the day at which the weekly backups will run                                                       |
+| `$BACLIUP_WEEKLY_DAY_OF_THE_WEEK` | `0`           | Day of the week on which the weekly backups will run                                                       |
+| `$BACLIUP_WEEKLY_CRON`            | `15 0 * * *`  | Cron schedule for the weekly backups (built from `$BACLIUP_WEEKLY_MINUTE/HOUR/DAY_OF_THE_WEEK` by default) |
+| `$BACLIUP_MONTHLY_TO`             | -             | Rclone destination of the monthly backups (set to enable)                                                  |
+| `$BACLIUP_MONTHLY_MINUTE`         | `45`          | Minute of the hour at which the monthly backups will run                                                   |
+| `$BACLIUP_MONTHLY_HOUR`           | `0`           | Hour of the day at which the monthly backups will run                                                      |
+| `$BACLIUP_MONTHLY_DAY`            | `0`           | Day of the month on which the monthly backups will run                                                     |
+| `$BACLIUP_MONTHLY_CRON`           | `15 0 * * *`  | Cron schedule for the monthly backups (built from `$BACLIUP_MONTHLY_MINUTE/HOUR/DAY` by default)           |
 
 ### Additional configuration
 

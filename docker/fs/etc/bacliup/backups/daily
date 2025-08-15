@@ -1,2 +1,0 @@
-to dest:daily/${backup_name}/
-cron 30 0 * * *

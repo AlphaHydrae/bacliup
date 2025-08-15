@@ -1,0 +1,22 @@
+services:
+  bacliup:
+    image: alphahydrae/bacliup
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bacliup
+    environment:
+      BACLIUP_BACKUP_TO_PREFIX: "dest:/var/lib/bacliup"
+      BACLIUP_MINUTELY_TO: "/minutely"
+      BACLIUP_HOURLY_TO: "/hourly"
+      BACLIUP_DAILY_TO: "/daily"
+      BACLIUP_WEEKLY_TO: "/weekly"
+      BACLIUP_MONTHLY_TO: "/monthly"
+      BACLIUP_GPG_IMPORT_KEY_FILE: /etc/bacliup/gpg.asc.pub
+      BACLIUP_GPG_IMPORT_KEY_ID: 8182F51EDCE258C5651B65E3D35F82141024AD71
+      BACLIUP_GPG_RECIPIENT: Bacliup <bacliup@alphahydrae.ch>
+    init: true
+    volumes:
+      - ./demo/backup:/usr/local/bin/backup:ro
+      - ./demo/gpg.asc.pub:/etc/bacliup/gpg.asc.pub:ro
+      - ./tmp/backups:/var/lib/bacliup:rw
