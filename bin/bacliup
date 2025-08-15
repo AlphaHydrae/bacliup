@@ -127,6 +127,7 @@ function back_up() {
   test -e "$backup_script" || fail 100 "Backup script ${backup_script} does not exist"
   test -f "$backup_script" || fail 101 "Backup script ${backup_script} is not a file"
   test -x "$backup_script" || fail 102 "Backup script ${backup_script} is not executable"
+  backup_script="$(realpath "$backup_script")"
 
   local backup_to_from_config="$(get_config_value "$backup_type" "to")"
   local backup_to="${BACLIUP_BACKUP_TO:-${backup_to_from_config:-dest:}}"
