@@ -5,7 +5,9 @@ function build_dockerfile() {
   local variant="$1"
 
   local dockerfile="Dockerfile"
-  test -n "$variant" && dockerfile="${dockerfile}.${variant}"
+  if [[ "$variant" != "none" ]]; then
+    dockerfile="${dockerfile}.${variant}"
+  fi
 
   cat "${dockerfile_header}" "${docker_dir}/Dockerfile.${variant:-none}" "${dockerfile_footer}" > "$dockerfile"
 }
