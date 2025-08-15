@@ -38,6 +38,7 @@ jobs:
 
       - name: Install pv & rclone
         run: |
+          sudo rm /var/lib/man-db/auto-update
           sudo apt install -y pv
           curl https://rclone.org/install.sh | sudo bash
 
