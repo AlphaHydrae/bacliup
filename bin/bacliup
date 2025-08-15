@@ -148,11 +148,13 @@ function back_up() {
   ls -l "$backup_script"
   echo '@@@@@@@@@@@@@@@@@@@ backup script contents'
   cat "$backup_script"
-  echo '@@@@@@@@@@@@@@@@@@@ backup file contents'
-  cat "$current_backup_dir/hello.txt"
   echo '@@@@@@@@@@@@@@@@@@@'
 
   BACKUP_DIR="$current_backup_dir" "$backup_script"
+
+  echo '@@@@@@@@@@@@@@@@@@@ backup file contents'
+  cat "$current_backup_dir/hello.txt"
+  echo '@@@@@@@@@@@@@@@@@@@'
 
   local tar_cmd=("$tar_bin" -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")")
 
