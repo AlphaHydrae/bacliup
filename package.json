@@ -1,0 +1,30 @@
+{
+  "name": "bacliup",
+  "version": "0.0.0",
+  "description": "A backup solution based on Bash, cron & rclone, for when the command line is good enough",
+  "keywords": [
+    "backup",
+    "bash",
+    "cron",
+    "rclone",
+    "gpg"
+  ],
+  "homepage": "https://github.com/AlphaHydrae/bacliup#readme",
+  "bugs": {
+    "url": "https://github.com/AlphaHydrae/bacliup/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlphaHydrae/bacliup.git"
+  },
+  "license": "MIT",
+  "author": "Simon Oulevay <npm@alphahydrae.ch> (Alpha Hydrae)",
+  "private": true,
+  "scripts": {
+    "doctoc": "doctoc --github --notitle README.md",
+    "test": "make"
+  },
+  "devDependencies": {
+    "doctoc": "^2.2.1"
+  }
+}

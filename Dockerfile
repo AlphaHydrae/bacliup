@@ -1,4 +1,4 @@
-FROM alpine:3.16.1 as builder
+FROM alpine:3.22.1 as builder
 
 COPY ./bin/bacliup /fs/usr/local/bin/
 COPY ./docker/ /fs/
@@ -6,7 +6,7 @@ COPY ./docker/ /fs/
 RUN chmod 700 /fs/bacliup /fs/bacliup/.config /fs/bacliup/.config/rclone && \
     chmod 600 /fs/bacliup/.config/rclone/rclone.conf
 
-FROM alpine:3.16.1
+FROM alpine:3.22.1
 
 ENV BACLIUP_CRON_SCRIPT="/usr/local/bin/with-env /usr/local/bin/bacliup"
 
