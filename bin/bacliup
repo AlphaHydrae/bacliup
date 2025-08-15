@@ -144,6 +144,9 @@ function back_up() {
   echo "tmp directory: $tmp_dir"
   echo "current backup dir: $current_backup_dir"
   ls -la "$current_backup_dir"
+  echo '@@@@@@@@@@@@@@@@@@@ backup script contents'
+  cat "$backup_script"
+  echo '@@@@@@@@@@@@@@@@@@@ backup file contents'
   cat "$current_backup_dir/hello.txt"
   echo '@@@@@@@@@@@@@@@@@@@'
 
