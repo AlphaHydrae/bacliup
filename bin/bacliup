@@ -195,7 +195,8 @@ function back_up() {
   echo '@@@@@@@@@@@@@@@@@@@ 6.1'
   echo "backup to: $backup_to"
   echo "backup file: $rclone_dest"
-  echo "backup file contents: $(cat "$(echo "$rclone_dest" | sed 's/^dest://')")"
+  echo "backup file final size: $(cat "$final_size_file")"
+  echo "backup file contents: '$(cat "$(echo "$rclone_dest" | sed 's/^dest://')")'"
   echo '@@@@@@@@@@@@@@@@@@@'
 
   local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
