@@ -36,7 +36,10 @@
 bacliup
 
 # By hand
-bacliup --name my-backup --to dest: --script /usr/local/bin/backup --gpg-recipient "John Doe <john.doe@example.com>"
+bacliup --name my-backup \
+        --to dest: \
+        --script /usr/local/bin/backup \
+        --gpg-recipient "John Doe <john.doe@example.com>"
 ```
 
 Bacliup will store a file named `my-backup.20010203T040506Z.tar.gpg` to the
