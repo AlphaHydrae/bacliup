@@ -14,7 +14,8 @@ function teardown() {
 #!/usr/bin/env bash
 set -e
 
-echo "Hello, World!" > $BACKUP_DIR/hello.txt
+echo "@@@@@@@@@@@ pwd from backup script: '${pwd}'"
+echo "Hello, World!" > hello.txt
 EOF
 
   chmod 755 backup
