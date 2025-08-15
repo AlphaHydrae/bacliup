@@ -29,6 +29,9 @@ Bacliup will exit with the following codes when known errors occur:
 | 100  | The backup script specified with `$BACLIUP_BACKUP_SCRIPT` does not exist.                                      |
 | 101  | The backup script specified with `$BACLIUP_BACKUP_SCRIPT` is not a file.                                       |
 | 102  | The backup script specified with `$BACLIUP_BACKUP_SCRIPT` is not executable.                                   |
+| 103  | The Rclone configuration file specified with `$BACLIUP_RCLONE_CONFIG_FILE` does not exist.                     |
+| 104  | The Rclone configuration file specified with `$BACLIUP_RCLONE_CONFIG_FILE` is not a file.                      |
+| 105  | The Rclone configuration file specified with `$BACLIUP_RCLONE_CONFIG_FILE` is not readable.                    |
 | 140  | One of the GPG recipients specified with `$BACLIUP_GPG_RECIPIENT` cannot be found.                             |
 | 141  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be imported.                                     |
 | 142  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be trusted.                                      |
