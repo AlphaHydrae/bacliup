@@ -28,7 +28,7 @@ EOF
   mkdir target
 
   export BACLIUP_BACKUP_SCRIPT="${PWD}/backup"
-  export BACLIUP_BACKUP_TO="dest:target"
+  export BACLIUP_BACKUP_TO="dest:${PWD}/target"
   export BACLIUP_GPG_RECIPIENT="Bacliup (Test) <bacliup@alphahydrae.dev>"
 
   run bacliup
