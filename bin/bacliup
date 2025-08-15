@@ -170,8 +170,6 @@ function back_up() {
   done
 
   echo '@@@@@@@@@@@@@@@@@@@ 4.1'
-  exit 1
-  echo '@@@@@@@@@@@@@@@@@@@ done'
 
   local rclone_remote="$(get_rclone_remote_from_path "$backup_to")"
   test -n "$rclone_remote" || fail 160 "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
@@ -181,6 +179,8 @@ function back_up() {
 
   local final_size_file="${tmp_dir}/final-size.pv"
   local now="$(date "+%s")"
+
+  echo '@@@@@@@@@@@@@@@@@@@ 5.1'
 
   echo "Backing up..."
   echo "  ${tar_cmd[@]} | \\"
@@ -192,11 +192,15 @@ function back_up() {
     pv -bf 2>"$final_size_file" | \
     "${rclone_cmd[@]}"
 
+  echo '@@@@@@@@@@@@@@@@@@@ 6.1'
+
   local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
   local now_after="$(date "+%s")"
   local elapsed_seconds="$(($now_after-$now))"
 
   slack_success "$backup_name" "$backup_type" "$backup_duration" "$backup_size" "$rclone_dest"
+
+  echo '@@@@@@@@@@@@@@@@@@@ done'
 }
 
 function generate_backup_cron() {
