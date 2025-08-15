@@ -140,33 +140,38 @@ function back_up() {
   mkdir "$current_backup_dir"
   cd "$current_backup_dir"
 
-  echo '@@@@@@@@@@@@@@@@@@@'
+  echo '@@@@@@@@@@@@@@@@@@@ 1.1'
   echo "tmp directory: $tmp_dir"
   echo "current backup dir: $current_backup_dir"
   ls -la "$current_backup_dir"
-  echo '@@@@@@@@@@@@@@@@@@@ backup script permissions'
+  echo '@@@@@@@@@@@@@@@@@@@ 1.2 backup script permissions'
   ls -l "$backup_script"
-  echo '@@@@@@@@@@@@@@@@@@@ backup script contents'
+  echo '@@@@@@@@@@@@@@@@@@@ 1.3 backup script contents'
   cat "$backup_script"
-  echo '@@@@@@@@@@@@@@@@@@@'
+  echo '@@@@@@@@@@@@@@@@@@@ 1.4'
 
   BACKUP_DIR="$current_backup_dir" "$backup_script"
 
-  echo '@@@@@@@@@@@@@@@@@@@ backup file contents'
+  echo '@@@@@@@@@@@@@@@@@@@ 2.1 backup file contents'
   cat "$current_backup_dir/hello.txt"
-  echo '@@@@@@@@@@@@@@@@@@@'
-  exit 1
   echo '@@@@@@@@@@@@@@@@@@@'
 
   local tar_cmd=("$tar_bin" -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")")
 
   local gpg_cmd=("$gpg_bin" "--armor" "--batch" "--encrypt")
   for recipient in "${backup_gpg_recipients[@]}"; do
+    echo '@@@@@@@@@@@@@@@@@@@ 3.1'
+    echo "Checking GPG recipient: $recipient"
+    echo '@@@@@@@@@@@@@@@@@@@'
     check_gpg_recipient_available "$recipient" || \
       fail 140 "GPG recipient '${recipient}' cannot be found. Is the GPG key in the keyring?"
 
     gpg_cmd+=("--recipient" "$recipient")
   done
+
+  echo '@@@@@@@@@@@@@@@@@@@ 4.1'
+  exit 1
+  echo '@@@@@@@@@@@@@@@@@@@ done'
 
   local rclone_remote="$(get_rclone_remote_from_path "$backup_to")"
   test -n "$rclone_remote" || fail 160 "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
