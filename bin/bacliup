@@ -200,6 +200,7 @@ function back_up() {
 
   slack_success "$backup_name" "$backup_type" "$backup_duration" "$backup_size" "$rclone_dest"
 
+  exit 1
   echo '@@@@@@@@@@@@@@@@@@@ done'
 }
 
