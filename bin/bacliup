@@ -143,7 +143,9 @@ function back_up() {
   BACKUP_DIR="$current_backup_dir" "$backup_script"
 
   echo '@@@@@@@@@@@@@@@@@@@'
-  ls -la "$BACKUP_DIR"
+  echo "tmp directory: $tmp_dir"
+  echo "current backup dir: $current_backup_dir"
+  ls -la "$current_backup_dir"
   cat "$BACKUP_DIR/hello.txt"
   echo '@@@@@@@@@@@@@@@@@@@'
 
