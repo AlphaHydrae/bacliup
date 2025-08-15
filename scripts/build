@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+
+function build_dockerfile() {
+  local variant="$1"
+
+  local dockerfile="Dockerfile"
+  test -n "$variant" && dockerfile="${dockerfile}.${variant}"
+
+  cat "${dockerfile_header}" "${docker_dir}/Dockerfile.${variant:-none}" "${dockerfile_footer}" > "$dockerfile"
+}
+
+docker_dir="docker"
+dockerfile_header="docker/Dockerfile.header"
+dockerfile_footer="docker/Dockerfile.footer"
+dockerfile_variants="postgresql"
+
+for variant in none postgresql; do
+  echo "Building Dockerfile for variant: $variant"
+  build_dockerfile "$variant"
+done

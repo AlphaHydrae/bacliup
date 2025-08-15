@@ -35,8 +35,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # https://github.com/docker/metadata-action
-      - name: Extract metadata (tags, labels) for the image
-        id: meta
+      - name: Extract metadata (tags, labels) for the main image
+        id: main-meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
@@ -47,21 +47,53 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       # https://github.com/docker/build-push-action
-      - name: Build and push the image
-        id: push
+      - name: Build and push the main image
+        id: main-push
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.main-meta.outputs.tags }}
+          labels: ${{ steps.main-meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE }}:latest
           cache-to: type=inline
 
       # https://github.com/actions/attest-build-provenance
-      - name: Generate artifact attestation for the image
+      - name: Generate artifact attestation for the main image
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE }}
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-digest: ${{ steps.main-push.outputs.digest }}
+          push-to-registry: true
+
+      # https://github.com/docker/metadata-action
+      - name: Extract metadata (tags, labels) for the PostgreSQL image
+        id: postgresql-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{major}}-postgresql
+            type=semver,pattern={{major}}.{{minor}}-postgresql
+            type=semver,pattern={{version}}-postgresql
+            type=raw,value=latest-postgresql,enable={{is_default_branch}}
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push the PostgreSQL image
+        id: postgresql-push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.postgresql-meta.outputs.tags }}
+          labels: ${{ steps.postgresql-meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-postgresql
+          cache-to: type=inline
+
+      # https://github.com/actions/attest-build-provenance
+      - name: Generate artifact attestation for the PostgreSQL image
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          subject-digest: ${{ steps.postgresql-push.outputs.digest }}
           push-to-registry: true
