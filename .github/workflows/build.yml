@@ -13,14 +13,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    name: Build the Docker image
+    name: Build the Docker images
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v5
 
-      - name: Build the Docker image
+      - name: Build the main Docker image
         run: |
-          docker build -t alphahydrae/bacliup .
+          docker build -t alphahydrae/bacliup:test .
+
+  build-postgresql:
+    runs-on: ubuntu-24.04
+    name: Build the Docker images
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+
+      - name: Build the PostgreSQL Docker image
+        run: |
+          docker build -t alphahydrae/bacliup:test-postgresql -f Dockerfile.postgresql .
 
   check-consistency:
     runs-on: ubuntu-24.04
