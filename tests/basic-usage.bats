@@ -38,8 +38,6 @@ EOF
   backup_file="$(ls -1 target|head -n 1)"
   mkdir result
   echo '@@@@@@@@@@@@@@@'
-  echo "backup file contents: $(cat $BACKUP_DIR/hello.txt)"
-  echo '@@@@@@@@@@@@@@@'
   ls -la target
   echo '@@@@@@@@@@@@@@@'
   echo "$PATH"
