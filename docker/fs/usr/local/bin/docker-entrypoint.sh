@@ -12,10 +12,15 @@ set -e
   BACLIUP_GPG_RECIPIENT \
   BACLIUP_RCLONE_BIN \
   BACLIUP_RCLONE_CONFIG_FILE \
+  BACLIUP_RCLONE_OPTIONS \
   BACLIUP_SLACK_WEBHOOK \
   BACLIUP_TAR_BIN \
   BACLIUP_TEMPLATES_DIR
 
-/usr/local/bin/bacliup init
+/usr/local/bin/with-env sudo -u bacliup /usr/local/bin/bacliup import-gpg
 
-exec crond -f -l 0
+/usr/local/bin/bacliup init
+crontab -l
+echo
+
+exec crond -f -l 6

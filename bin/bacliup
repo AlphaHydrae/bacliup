@@ -209,17 +209,23 @@ function generate_backup_cron() {
 EOF
 )"
 
-  for backup_config in "$(list_configs)"; do
+  OLD_IFS="$IFS"
+  IFS=$'\n'
+  for backup_config in $(list_configs); do
     cron_schedule="$(get_config_value "$backup_config" cron)"
-    cron="$(printf "${cron}\n\n${cron_schedule} bacliup ${cron_script} ${backup_config} &>/dev/stdout\n")"
+    cron="$(printf "${cron}\n${cron_schedule} ${cron_script} ${backup_config}")"
   done
+  IFS="$OLD_IFS"
 
   echo "$cron"
 }
 
 function import_gpg_key() {
+  test "$#" -gt 0 && fail 4 "Extra positional argument(s) not supported by 'import-gpg' subcommand: $@"
   test -n "$gpg_import_key" || return 0
 
+  echo
+  echo "Importing GPG key..."
   echo "$gpg_import_key" | gpg --batch --import || fail 141 "Could not import GPG key"
 
   if test -n "$gpg_import_key_id"; then
@@ -231,8 +237,8 @@ function import_gpg_key() {
 function init() {
   test "$#" -gt 0 && fail 4 "Extra positional argument(s) not supported by 'init' subcommand: $@"
 
-  import_gpg_key
-
+  echo
+  echo "Configuring cron jobs..."
   echo "$(generate_backup_cron)" | crontab -
 }
 
@@ -331,6 +337,9 @@ test "${#backup_gpg_cli_recipients[@]}" -ge 1 && backup_gpg_recipients=("${backu
 action="backup"
 if [[ "$1" == "backup" ]]; then
   shift
+elif [[ "$1" == "import-gpg" ]]; then
+  action="import-gpg"
+  shift
 elif [[ "$1" == "init" ]]; then
   action="init"
   shift
@@ -341,6 +350,8 @@ trap "local_cleanup $tmp_dir" EXIT
 
 if [[ "$action" == "backup" ]]; then
   back_up "$@"
+elif [[ "$action" == "import-gpg" ]]; then
+  import_gpg_key
 elif [[ "$action" == "init" ]]; then
   init "$@"
 fi

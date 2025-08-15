@@ -14,9 +14,11 @@
     gpg --version && \
     rclone --version
 
-USER bacliup
+ENV BACLIUP_CRON_SCRIPT="/usr/local/bin/with-env /usr/bin/sudo -u bacliup /usr/local/bin/bacliup" \
+    BACLIUP_TEMPLATES_DIR="/etc/bacliup/templates"
+
 WORKDIR /bacliup
 
-COPY --chown=bacliup:bacliup --from=builder /fs/ /
+COPY --from=builder /fs/ /
 
 CMD [ "/usr/local/bin/docker-entrypoint.sh" ]
