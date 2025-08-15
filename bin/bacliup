@@ -140,14 +140,14 @@ function back_up() {
   mkdir "$current_backup_dir"
   cd "$current_backup_dir"
 
-  BACKUP_DIR="$current_backup_dir" "$backup_script"
-
   echo '@@@@@@@@@@@@@@@@@@@'
   echo "tmp directory: $tmp_dir"
   echo "current backup dir: $current_backup_dir"
   ls -la "$current_backup_dir"
-  cat "$BACKUP_DIR/hello.txt"
+  cat "$current_backup_dir/hello.txt"
   echo '@@@@@@@@@@@@@@@@@@@'
+
+  BACKUP_DIR="$current_backup_dir" "$backup_script"
 
   local tar_cmd=("$tar_bin" -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")")
 
