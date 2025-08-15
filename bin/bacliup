@@ -195,7 +195,7 @@ function back_up() {
   echo '@@@@@@@@@@@@@@@@@@@ 6.1'
   echo "backup to: $backup_to"
   echo "backup file: $rclone_dest"
-  echo "backup file contents: $(cat "$rclone_dest")"
+  echo "backup file contents: $(cat "$(echo "$rclone_dest" | sed 's/^dest://')")"
   echo '@@@@@@@@@@@@@@@@@@@'
 
   local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
@@ -205,6 +205,7 @@ function back_up() {
   slack_success "$backup_name" "$backup_type" "$backup_duration" "$backup_size" "$rclone_dest"
 
   echo '@@@@@@@@@@@@@@@@@@@ 7.1'
+  exit 1
   echo '@@@@@@@@@@@@@@@@@@@ done'
 }
 
