@@ -14,7 +14,6 @@ function teardown() {
 #!/usr/bin/env bash
 set -e
 
-echo "@@@@@@@@@@@ pwd from backup script: '${PWD}'"
 echo "Hello, World!" > hello.txt
 EOF
 
@@ -37,15 +36,6 @@ EOF
 
   backup_file="$(ls -1 target|head -n 1)"
   mkdir result
-  echo '@@@@@@@@@@@@@@@'
-  ls -la target
-  echo '@@@@@@@@@@@@@@@'
-  echo "$PATH"
-  echo '@@@@@@@@@@@@@@@'
-  which gpg
-  echo '@@@@@@@@@@@@@@@'
-  echo "'$(cat "target/${backup_file}")'"
-  echo '@@@@@@@@@@@@@@@'
   cat "target/${backup_file}" | fake_gpg_decrypt > result/decrypted.tar
 
   cd result
