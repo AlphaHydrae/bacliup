@@ -32,14 +32,9 @@ jobs:
           submodules: true
 
       - name: Install asdf
-        uses: asdf-vm/actions/setup@v1
+        uses: asdf-vm/actions/install@v4
         with:
           asdf_branch: v0.18.0
-
-      - name: Install Bats with asdf
-        run: |
-          asdf plugin add bats
-          asdf install bats
 
       - name: Install rclone
         run: |
