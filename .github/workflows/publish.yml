@@ -14,7 +14,7 @@ env:
 
 jobs:
   publish-main:
-    name: Build and push the main Docker image to Docker Hub
+    name: Build and push the main Docker image to the GitHub Container Registry
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -67,7 +67,7 @@ jobs:
           push-to-registry: true
 
   publish-postgresql:
-    name: Build and push the PostgreSQL Docker image to Docker Hub
+    name: Build and push the PostgreSQL Docker image to the GitHub Container Registry
     runs-on: ubuntu-24.04
     permissions:
       contents: read
