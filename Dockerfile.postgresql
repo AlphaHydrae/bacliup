@@ -54,13 +54,6 @@ WORKDIR /bacliup
 
 COPY --from=builder /fs/ /
 
-RUN chown -R bacliup:bacliup /bacliup /etc/bacliup /var/lib/bacliup && \
-    chmod 700 \
-      /bacliup \
-      /bacliup/.config \
-      /bacliup/.config/rclone \
-      /bacliup/.gnupg \
-      /etc/bacliup \
-      /var/lib/bacliup
+RUN chown -R bacliup:bacliup /bacliup /etc/bacliup /var/lib/bacliup
 
 CMD [ "/usr/local/bin/docker-entrypoint.sh" ]
