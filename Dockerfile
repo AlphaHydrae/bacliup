@@ -34,7 +34,6 @@ RUN apk add --no-cache \
     && \
     apk add --no-cache --virtual .build-deps \
       ca-certificates \
-      sudo \
       unzip \
     && \
     curl https://rclone.org/install.sh?v=a | sudo bash && \
