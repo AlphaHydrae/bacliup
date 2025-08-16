@@ -33,6 +33,17 @@ jobs:
         run: |
           docker build -t alphahydrae/bacliup:test-postgresql -f Dockerfile.postgresql .
 
+  build-sqlite:
+    runs-on: ubuntu-24.04
+    name: Build the SQLite Docker image
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+
+      - name: Build the image
+        run: |
+          docker build -t alphahydrae/bacliup:test-sqlite -f Dockerfile.sqlite .
+
   check-consistency:
     runs-on: ubuntu-24.04
     name: Check consistency of the repository

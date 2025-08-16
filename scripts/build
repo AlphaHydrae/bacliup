@@ -15,9 +15,8 @@ function build_dockerfile() {
 docker_dir="docker"
 dockerfile_header="docker/Dockerfile.header"
 dockerfile_footer="docker/Dockerfile.footer"
-dockerfile_variants="postgresql"
 
-for variant in none postgresql; do
+for variant in none postgresql sqlite; do
   echo "Building Dockerfile for variant: $variant"
   build_dockerfile "$variant"
 done
