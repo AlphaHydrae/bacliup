@@ -100,7 +100,10 @@ function slack_success() {
   local backup_size="$4"
   local backup_destination="$5"
 
-  test -n "$slack_webhook_url" || return 0
+  local slack_webhook_url_from_config="$(get_config_value "$backup_type" "slack-webhook-url")"
+  local current_slack_webhook_url="${slack_webhook_url:-$slack_webhook_url_from_config}"
+
+  test -n "$current_slack_webhook_url" || return 0
 
   local backup_message=":white_check_mark: Successful"
   test -n "$backup_type" && backup_message="$backup_message $backup_type"
@@ -116,7 +119,7 @@ function slack_success() {
     jq --arg backup_duration "$backup_duration" '(.attachments[0].fields[] | select(.title == "Duration") | .value) |= $backup_duration' | \
     jq --arg backup_size "\`$backup_size\`" '(.attachments[0].fields[] | select(.title == "Size") | .value) |= $backup_size' | \
     jq --arg backup_destination "\`$backup_destination\`" '(.attachments[0].fields[] | select(.title == "Destination") | .value) |= $backup_destination' | \
-    "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$slack_webhook_url"
+    "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$current_slack_webhook_url"
 }
 
 

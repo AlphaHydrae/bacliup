@@ -111,11 +111,12 @@ cron 0 * * * *
 
 The available backup configuration file keys are:
 
-| Key           | Default value | Description                                                                                                |
-| :------------ | :------------ | :--------------------------------------------------------------------------------------------------------- |
-| `to`          | `dest:`       | Rclone destination to store the backup to (in the format `remote:path` where `remote` is an Rclone remote) |
-| `cron`        | -             | Optional cron schedule to set up for this backup type when configuring cron with `bacliup init`            |
-| `rclone-opts` | -             | Additional options to pass to the `rclone` command                                                         |
+| Key                 | Default value | Description                                                                                                |
+| :------------------ | :------------ | :--------------------------------------------------------------------------------------------------------- |
+| `to`                | `dest:`       | Rclone destination to store the backup to (in the format `remote:path` where `remote` is an Rclone remote) |
+| `cron`              | -             | Optional cron schedule to set up for this backup type when configuring cron with `bacliup init`            |
+| `rclone-opts`       | -             | Additional options to pass to the `rclone` command                                                         |
+| `slack-webhook-url` | -             | Slack webhook URL specific to this backup type                                                             |
 
 ### Command line options & environment variables
 
