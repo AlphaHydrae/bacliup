@@ -1,4 +1,10 @@
 # https://docs.docker.com/engine/reference/builder/#dockerignore-file
+/.ackrc
+/demo
+/.editorconfig
 /.envrc
+/.github
+/node_modules
+/.tool-versions
 /tmp
 /.vscode
