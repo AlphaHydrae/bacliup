@@ -56,7 +56,7 @@ jobs:
       - name: Install asdf
         uses: asdf-vm/actions/install@v4
         with:
-          asdf_branch: v0.18.0
+          asdf_version: 0.18.0
 
       - name: Install Node.js dependencies
         run: |
@@ -87,7 +87,7 @@ jobs:
       - name: Install asdf
         uses: asdf-vm/actions/install@v4
         with:
-          asdf_branch: v0.18.0
+          asdf_version: 0.18.0
 
       - name: Install pv & rclone
         run: |
