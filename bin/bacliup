@@ -55,7 +55,13 @@ function element_in_array() {
 function fail() {
   local code="$1"
   shift
-  >&2 echo "$@"
+  local message="$@"
+
+  if [ "$action" == "backup" ]; then
+    slack_failure "$backup_name" "$backup_type" "$code" "$message"
+  fi
+
+  >&2 echo "$message"
   exit $code
 }
 
@@ -93,12 +99,44 @@ function local_cleanup() {
   test -d "$tmp_dir" && rm -fr "$tmp_dir"
 }
 
+function slack_failure() {
+  local backup_name="$1"
+  local backup_type="$2"
+  local exit_code="$3"
+  local error_message="$4"
+
+  local slack_webhook_url_from_config="$(get_config_value "$backup_type" "slack-webhook-url")"
+  local current_slack_webhook_url="${slack_webhook_url:-$slack_webhook_url_from_config}"
+
+  test -n "$current_slack_webhook_url" || return 0
+
+  local backup_message=":boom: Failed"
+  test -n "$backup_type" && backup_message="$backup_message $backup_type"
+  backup_message="$backup_message backup for $backup_name"
+
+  local now="$(date "+%s")"
+  local elapsed_seconds="$(($now-$start))"
+  local backup_duration="${elapsed_seconds}s"
+  test "$elapsed_seconds" -eq 0 && backup_duration="< 1s"
+
+  test -z "$backup_dest" && backup_dest="<not set>"
+
+  cat "${templates_dir}/slack-failure.json" | \
+    jq --arg backup_message "$backup_message" '(.attachments[0].title) |= $backup_message' | \
+    jq --arg backup_name "$backup_name" '(.attachments[0].fields[] | select(.title == "Backup") | .value) |= $backup_name' | \
+    jq --arg backup_type "$backup_type" '(.attachments[0].fields[] | select(.title == "Type") | .value) |= $backup_type' | \
+    jq --arg backup_duration "$backup_duration" '(.attachments[0].fields[] | select(.title == "Duration") | .value) |= $backup_duration' | \
+    jq --arg backup_destination "\`$backup_dest\`" '(.attachments[0].fields[] | select(.title == "Destination") | .value) |= $backup_destination' | \
+    jq --arg exit_code "\`$exit_code\`" '(.attachments[0].fields[] | select(.title == "Exit Code") | .value) |= $exit_code' | \
+    jq --arg error_message "$error_message" '(.attachments[1].text) |= $error_message' | \
+    "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$current_slack_webhook_url" || \
+    >&2 echo "Failed to send Slack failure notification. Please check your Slack webhook URL."
+}
+
 function slack_success() {
   local backup_name="$1"
   local backup_type="$2"
-  local backup_duration="$3"
-  local backup_size="$4"
-  local backup_destination="$5"
+  local backup_size="$3"
 
   local slack_webhook_url_from_config="$(get_config_value "$backup_type" "slack-webhook-url")"
   local current_slack_webhook_url="${slack_webhook_url:-$slack_webhook_url_from_config}"
@@ -109,6 +147,8 @@ function slack_success() {
   test -n "$backup_type" && backup_message="$backup_message $backup_type"
   backup_message="$backup_message backup for $backup_name"
 
+  local now="$(date "+%s")"
+  local elapsed_seconds="$(($now-$start))"
   local backup_duration="${elapsed_seconds}s"
   test "$elapsed_seconds" -eq 0 && backup_duration="< 1s"
 
@@ -118,7 +158,7 @@ function slack_success() {
     jq --arg backup_type "$backup_type" '(.attachments[0].fields[] | select(.title == "Type") | .value) |= $backup_type' | \
     jq --arg backup_duration "$backup_duration" '(.attachments[0].fields[] | select(.title == "Duration") | .value) |= $backup_duration' | \
     jq --arg backup_size "\`$backup_size\`" '(.attachments[0].fields[] | select(.title == "Size") | .value) |= $backup_size' | \
-    jq --arg backup_destination "\`$backup_destination\`" '(.attachments[0].fields[] | select(.title == "Destination") | .value) |= $backup_destination' | \
+    jq --arg backup_destination "\`$backup_dest\`" '(.attachments[0].fields[] | select(.title == "Destination") | .value) |= $backup_destination' | \
     "$curl_bin" --data-binary @- -H "Content-Type: application/json" "$current_slack_webhook_url"
 }
 
@@ -156,6 +196,7 @@ function back_up() {
   local backup_directory_name="${backup_name}.${backup_timestamp}"
   local current_backup_dir="${tmp_dir}/${backup_directory_name}"
   local current_backup_basename="${backup_directory_name}.tar.gpg"
+  backup_dest="${backup_to%/}/${current_backup_basename}"
 
   mkdir "$current_backup_dir"
   cd "$current_backup_dir"
@@ -177,27 +218,25 @@ function back_up() {
   local rclone_remote="$(get_rclone_remote_from_path "$backup_to")"
   test -n "$rclone_remote" || fail 160 "Backup destination ${backup_to} must be an rclone path specifying a remote, e.g. 'dest:path'"
   check_rclone_remote_available "$rclone_remote" || fail 161 "Backup remote $rclone_remote cannot be found. Is it defined in the rclone configuration file?"
-  local rclone_dest="${backup_to%/}/${current_backup_basename}"
+  local rclone_dest="${backup_dest}"
   local rclone_cmd=($(build_rclone_command $rclone_opts rcat "$rclone_dest"))
 
   local final_size_file="${tmp_dir}/final-size.pv"
-  local now="$(date "+%s")"
+  local stderr_file="${tmp_dir}/stderr.log"
 
   echo "Backing up..."
   echo "  ${tar_cmd[@]} | \\"
   echo "  ${gpg_cmd[@]} | \\"
   echo "  ${rclone_cmd[@]}"
 
-  "${tar_cmd[@]}" | \
-    "${gpg_cmd[@]}" | \
-    pv -bf 2>"$final_size_file" | \
-    "${rclone_cmd[@]}"
+  { "${tar_cmd[@]}" | "${gpg_cmd[@]}" | pv -bf 2>"$final_size_file" | "${rclone_cmd[@]}"; } 2> >(tee "$stderr_file") || \
+    fail 200 "Backup failed: $(cat "$stderr_file")"
 
   local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
-  local now_after="$(date "+%s")"
-  local elapsed_seconds="$(($now_after-$now))"
+  local now="$(date "+%s")"
+  local elapsed_seconds="$(($now-$start))"
 
-  slack_success "$backup_name" "$backup_type" "$backup_duration" "$backup_size" "$rclone_dest"
+  slack_success "$backup_name" "$backup_type" "$backup_size"
 }
 
 function generate_backup_cron() {
@@ -366,6 +405,8 @@ elif [[ "$1" == "init" ]]; then
   action="init"
   shift
 fi
+
+start="$(date "+%s")"
 
 tmp_dir=`create_temporary_directory`
 trap "local_cleanup $tmp_dir" EXIT

@@ -226,6 +226,7 @@ Bacliup will exit with the following codes when known errors occur:
 | 142  | The GPG key provided with `$BACLIUP_GPG_IMPORT_KEY` could not be trusted.                                      |
 | 160  | The configured backup destination is not a valid rclone path (e.g. `dest:path`).                               |
 | 161  | The remote storage specified in the configured backup destination cannot be found in the rclone configuration. |
+| 200  | The backup pipeline failed                                                                                     |
 
 
 

@@ -1,8 +1,8 @@
 {
   "attachments": [
     {
-      "color": "warning",
-      "title": ":warning:",
+      "color": "danger",
+      "title": ":boom:",
       "text": "‎",
       "fields": [
         { "title": "Backup", "value": "", "short": true },
@@ -13,7 +13,7 @@
           "short": true
         },
         {
-          "title": "Size",
+          "title": "Exit Code",
           "value": "",
           "short": true
         },
