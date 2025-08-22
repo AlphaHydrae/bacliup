@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eo pipefail
 
 function build_rclone_command() {
   local subcommand="$1"
@@ -201,7 +201,10 @@ function back_up() {
   mkdir "$current_backup_dir"
   cd "$current_backup_dir"
 
-  BACKUP_DIR="$current_backup_dir" "$backup_script"
+  local backup_stderr_file="${tmp_dir}/backup-stderr.log"
+
+  { BACKUP_DIR="$current_backup_dir" "$backup_script"; } 2> >(tee "$backup_stderr_file") || \
+    fail 200 "Backup script ${backup_script} exited with code $?: $(cat "$backup_stderr_file")"
 
   local tar_cmd=("$tar_bin" -C "$(dirname "$current_backup_dir")" -cf - "$(basename "$current_backup_dir")")
 
@@ -222,15 +225,15 @@ function back_up() {
   local rclone_cmd=($(build_rclone_command $rclone_opts rcat "$rclone_dest"))
 
   local final_size_file="${tmp_dir}/final-size.pv"
-  local stderr_file="${tmp_dir}/stderr.log"
+  local backup_pipeline_stderr_file="${tmp_dir}/pipeline-stderr.log"
 
   echo "Backing up..."
   echo "  ${tar_cmd[@]} | \\"
   echo "  ${gpg_cmd[@]} | \\"
   echo "  ${rclone_cmd[@]}"
 
-  { "${tar_cmd[@]}" | "${gpg_cmd[@]}" | pv -bf 2>"$final_size_file" | "${rclone_cmd[@]}"; } 2> >(tee "$stderr_file") || \
-    fail 200 "Backup failed: $(cat "$stderr_file")"
+  { "${tar_cmd[@]}" | "${gpg_cmd[@]}" | pv -bf 2>"$final_size_file" | "${rclone_cmd[@]}"; } 2> >(tee "$backup_pipeline_stderr_file") || \
+    fail 201 "Backup processing pipeline exited with code $?: $(cat "$backup_pipeline_stderr_file")"
 
   local backup_size="$(cat "$final_size_file" | tr -cd '[:alnum:]._-')"
   local now="$(date "+%s")"
